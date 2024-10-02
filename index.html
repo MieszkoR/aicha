@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who is ChatGPT?</title>
+</head>
+<body>
+    <h1>Ask About ChatGPT</h1>
+    <p id="response">Loading response...</p>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Define the CORS proxy endpoint and the OpenAI API endpoint
+            const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+            const apiUrl = 'https://api.openai.com/v1/completions';
+            const apiKey = 'YOUR_OPENAI_API_KEY'; // Replace with your OpenAI API key
+
+            // Prepare the data for the API request
+            const prompt = "Who are you?";
+            const requestBody = {
+                model: "text-davinci-004", // Update this if needed
+                prompt: prompt,
+                max_tokens: 50,
+                temperature: 0.5
+            };
+
+            // Make the API request via the CORS proxy
+            fetch(corsProxy + apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify(requestBody)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Extract the response text
+                const responseText = data.choices[0].text.trim();
+                // Display the response in the HTML
+                document.getElementById("response").innerText = responseText;
+            })
+            .catch(error => {
+                document.getElementById("response").innerText = "Error: Could not retrieve response.";
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

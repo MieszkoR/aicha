@@ -70,9 +70,25 @@
             background-color: #ffccbc; /* Light red */
         }
 
+        .highlight-correct {
+            background-color: #c8e6c9; /* Light green for correct answers */
+        }
+
+        .highlight-incorrect {
+            background-color: #ffccbc; /* Light red for incorrect answers */
+        }
+
         #question-type-container {
             text-align: center;
             margin-bottom: 20px;
+        }
+
+        input[type="text"].highlight-incorrect {
+            border: 2px solid #ff0000; /* Red border for incorrect answers */
+        }
+
+        input[type="text"].highlight-correct {
+            border: 2px solid #00ff00; /* Green border for correct answers */
         }
     </style>
 </head>
@@ -116,101 +132,4 @@
         function generateMultipleChoiceQuiz(container) {
             vocabularyList.forEach((item, index) => {
                 const questionDiv = document.createElement('div');
-                questionDiv.classList.add('question');
-
-                // Generate incorrect options
-                const incorrectOptions = getIncorrectOptions(item.english);
-                const options = [item.english, ...incorrectOptions].sort(() => Math.random() - 0.5); // Shuffle options
-
-                questionDiv.innerHTML = `
-                    <p>${index + 1}. What does <strong>"${item.spanish}"</strong> mean?</p>
-                `;
-                options.forEach(option => {
-                    questionDiv.innerHTML += `
-                        <label>
-                            <input type="radio" name="q${index}" value="${option}"> ${option}
-                        </label>
-                    `;
-                });
-
-                container.appendChild(questionDiv);
-            });
-        }
-
-        function generateOpenEndedQuiz(container) {
-            vocabularyList.forEach((item, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.classList.add('question');
-
-                questionDiv.innerHTML = `
-                    <p>${index + 1}. What does <strong>"${item.spanish}"</strong> mean?</p>
-                    <input type="text" name="q${index}" />
-                `;
-
-                container.appendChild(questionDiv);
-            });
-        }
-
-        function getIncorrectOptions(correctAnswer) {
-            const incorrectOptions = new Set();
-            while (incorrectOptions.size < 2) {
-                const randomIndex = Math.floor(Math.random() * vocabularyList.length);
-                const randomWord = vocabularyList[randomIndex].english;
-
-                if (randomWord !== correctAnswer) {
-                    incorrectOptions.add(randomWord);
-                }
-            }
-            return Array.from(incorrectOptions);
-        }
-
-        function checkAnswers() {
-            const quizContainer = document.getElementById('quiz-container');
-            const questions = quizContainer.getElementsByClassName('question');
-            let score = 0;
-
-            // Reset previous highlights
-            for (let question of questions) {
-                question.querySelectorAll('label').forEach(label => {
-                    label.classList.remove('correct', 'incorrect');
-                });
-            }
-
-            for (let i = 0; i < questions.length; i++) {
-                const question = questions[i];
-                const item = vocabularyList[i];
-
-                if (question.querySelector('input[type="radio"]')) {
-                    // Multiple choice
-                    const selectedOption = question.querySelector(`input[name="q${i}"]:checked`);
-                    if (selectedOption) {
-                        if (selectedOption.value === item.english) {
-                            score++;
-                            selectedOption.parentElement.classList.add('correct');
-                        } else {
-                            selectedOption.parentElement.classList.add('incorrect');
-                        }
-
-                        // Highlight correct answer
-                        Array.from(question.querySelectorAll('input[type="radio"]')).forEach(option => {
-                            if (option.value === item.english) {
-                                option.parentElement.classList.add('correct');
-                            }
-                        });
-                    }
-                } else {
-                    // Open-ended
-                    const userAnswer = question.querySelector(`input[name="q${i}"]`).value.trim().toLowerCase();
-                    if (userAnswer === item.english.toLowerCase()) {
-                        score++;
-                    } else {
-                        question.querySelector(`input[name="q${i}"]`).classList.add('incorrect');
-                    }
-                }
-            }
-
-            document.getElementById('result').innerText = `You scored ${score} out of ${questions.length}!`;
-        }
-    </script>
-</body>
-</html>
+                questionDiv

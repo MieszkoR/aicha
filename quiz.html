@@ -62,14 +62,6 @@
             cursor: pointer;
         }
 
-        .correct {
-            background-color: #c8e6c9; /* Light green */
-        }
-
-        .incorrect {
-            background-color: #ffccbc; /* Light red */
-        }
-
         .highlight-correct {
             background-color: #c8e6c9; /* Light green for correct answers */
         }
@@ -159,7 +151,7 @@
                 questionDiv.classList.add('question');
 
                 questionDiv.innerHTML = `
-                    <p>${index + 1}. What is the English meaning of <strong>"${item.spanish}"</strong>?</p>
+                    <p>${index + 1}. What is the Spanish translation of <strong>"${item.english}"</strong>?</p>
                     <input type="text" name="q${index}" />
                 `;
 
@@ -171,7 +163,7 @@
             const incorrectOptions = new Set();
             while (incorrectOptions.size < 2) {
                 const randomIndex = Math.floor(Math.random() * vocabularyList.length);
-                const randomWord = vocabularyList[randomIndex].english;
+                const randomWord = vocabularyList[randomIndex].spanish; // Get incorrect Spanish words
 
                 if (randomWord !== correctAnswer) {
                     incorrectOptions.add(randomWord);
@@ -187,9 +179,6 @@
 
             // Reset previous highlights
             for (let question of questions) {
-                question.querySelectorAll('label').forEach(label => {
-                    label.classList.remove('correct', 'incorrect');
-                });
                 const inputField = question.querySelector('input[type="text"]');
                 if (inputField) {
                     inputField.classList.remove('highlight-correct', 'highlight-incorrect');
@@ -206,22 +195,22 @@
                     if (selectedOption) {
                         if (selectedOption.value === item.english) {
                             score++;
-                            selectedOption.parentElement.classList.add('correct');
+                            selectedOption.parentElement.classList.add('highlight-correct');
                         } else {
-                            selectedOption.parentElement.classList.add('incorrect');
+                            selectedOption.parentElement.classList.add('highlight-incorrect');
                         }
 
                         // Highlight correct answer
                         Array.from(question.querySelectorAll('input[type="radio"]')).forEach(option => {
                             if (option.value === item.english) {
-                                option.parentElement.classList.add('correct');
+                                option.parentElement.classList.add('highlight-correct');
                             }
                         });
                     }
                 } else {
                     // Open-ended
                     const userAnswer = question.querySelector(`input[name="q${i}"]`).value.trim().toLowerCase();
-                    const correctAnswer = item.english.toLowerCase();
+                    const correctAnswer = item.spanish.toLowerCase();
                     
                     if (userAnswer === correctAnswer) {
                         score++;

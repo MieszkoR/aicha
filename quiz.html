@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -210,6 +210,10 @@
                             question.querySelector('input[type="radio"][value="' + answerValue + '"]').parentElement.classList.add('highlight-incorrect');
                         }
                     }
+                    // Disable all radio buttons after submitting
+                    question.querySelectorAll('input[type="radio"]').forEach(radio => {
+                        radio.disabled = true; // Disable radio buttons
+                    });
                 });
             } 
             // Check answers for open-ended
@@ -236,7 +240,6 @@
             document.getElementById('submit-button').style.display = 'none'; // Hide submit button
             document.getElementById('return-to-quiz-button').style.display = 'none'; // Hide return button
             document.getElementById('main-menu').style.display = 'block'; // Show main menu
-            document.getElementById('result').innerText = ''; // Clear result
         }
     </script>
 </body>

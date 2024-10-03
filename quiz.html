@@ -95,7 +95,7 @@
     <div id="quiz-container" style="display: none;"></div>
     <button id="submit-button" style="display: none;" onclick="checkAnswers()">Submit Answers</button>
     <button id="return-to-quiz-button" style="display: none;" onclick="returnToQuizMenu()">Return to Quiz Menu</button>
-    <button id="return-to-main-button" onclick="location.href='literature.html';">Return to Literature Page</button>
+    <button id="return-to-main-button" onclick="location.href='index.html';">Return to Literature Page</button>
     <p id="result"></p>
 
     <script>
@@ -188,11 +188,14 @@
                 Array.from(inputs).forEach(input => {
                     if (input.type === 'radio') {
                         input.checked = false; // Reset radio buttons
+                    } else if (input.type === 'text') {
+                        input.classList.remove('highlight-correct');
+                        input.classList.remove('highlight-incorrect');
                     }
                 });
             });
 
-            // Check answers
+            // Check answers for multiple choice
             Array.from(questions).forEach((question, index) => {
                 const correctAnswer = vocabularyList[index].english;
                 if (question.getElementsByTagName('input')[0].checked) {
@@ -206,14 +209,7 @@
                 }
             });
 
-            document.getElementById('result').innerText = `Your score: ${score} out of ${questions.length}`;
-        }
-
-        function checkOpenEndedAnswers() {
-            const quizContainer = document.getElementById('quiz-container');
-            const questions = quizContainer.getElementsByClassName('question');
-            let score = 0;
-
+            // Check answers for open-ended
             Array.from(questions).forEach((question, index) => {
                 const userAnswer = question.querySelector('input[type="text"]').value.trim().toLowerCase();
                 const correctAnswer = vocabularyList[index].spanish.toLowerCase();

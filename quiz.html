@@ -86,12 +86,16 @@
 </head>
 <body>
     <h1>Spanish Vocabulary Quiz</h1>
-    <div id="question-type-container">
-        <button onclick="startQuiz('multiple-choice')">Multiple Choice Questions</button>
-        <button onclick="startQuiz('open-ended')">Open Questions</button>
+    <div id="main-menu">
+        <div id="question-type-container">
+            <button onclick="startQuiz('multiple-choice')">Multiple Choice Questions</button>
+            <button onclick="startQuiz('open-ended')">Open Questions</button>
+        </div>
     </div>
-    <div id="quiz-container"></div>
+    <div id="quiz-container" style="display: none;"></div>
     <button id="submit-button" style="display: none;" onclick="checkAnswers()">Submit Answers</button>
+    <button id="return-to-quiz-button" style="display: none;" onclick="returnToQuizMenu()">Return to Quiz Menu</button>
+    <button id="return-to-main-button" style="display: none;" onclick="returnToMainMenu()">Return to Main Page</button>
     <p id="result"></p>
 
     <script>
@@ -107,18 +111,20 @@
         ];
 
         function startQuiz(type) {
+            document.getElementById('main-menu').style.display = 'none'; // Hide main menu
             const quizContainer = document.getElementById('quiz-container');
             quizContainer.innerHTML = ''; // Clear previous content
             document.getElementById('result').innerText = '';
-            document.getElementById('submit-button').style.display = 'none';
+            document.getElementById('submit-button').style.display = 'block';
+            document.getElementById('return-to-quiz-button').style.display = 'block';
+            document.getElementById('return-to-main-button').style.display = 'block';
+            quizContainer.style.display = 'block'; // Show quiz container
 
             if (type === 'multiple-choice') {
                 generateMultipleChoiceQuiz(quizContainer);
             } else if (type === 'open-ended') {
                 generateOpenEndedQuiz(quizContainer);
             }
-
-            document.getElementById('submit-button').style.display = 'block';
         }
 
         function generateMultipleChoiceQuiz(container) {
@@ -222,6 +228,24 @@
             }
 
             document.getElementById('result').innerText = `You scored ${score} out of ${questions.length}!`;
+        }
+
+        function returnToQuizMenu() {
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('submit-button').style.display = 'none';
+            document.getElementById('return-to-quiz-button').style.display = 'none';
+            document.getElementById('result').innerText = '';
+            document.getElementById('return-to-main-button').style.display = 'block';
+            document.getElementById('main-menu').style.display = 'block'; // Show main menu
+        }
+
+        function returnToMainMenu() {
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('submit-button').style.display = 'none';
+            document.getElementById('return-to-quiz-button').style.display = 'none';
+            document.getElementById('return-to-main-button').style.display = 'none';
+            document.getElementById('result').innerText = '';
+            document.getElementById('main-menu').style.display = 'block'; // Show main menu
         }
     </script>
 </body>

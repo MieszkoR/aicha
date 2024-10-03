@@ -95,7 +95,7 @@
     <div id="quiz-container" style="display: none;"></div>
     <button id="submit-button" style="display: none;" onclick="checkAnswers()">Submit Answers</button>
     <button id="return-to-quiz-button" style="display: none;" onclick="returnToQuizMenu()">Return to Quiz Menu</button>
-    <button id="return-to-main-button" onclick="returnToMainMenu()">Return to Main Page</button>
+    <button id="return-to-main-button" onclick="location.href='literature.html';">Return to Literature Page</button>
     <p id="result"></p>
 
     <script>
@@ -183,67 +183,59 @@
             let score = 0;
 
             // Reset previous highlights
-            for (let question of questions) {
-                const inputField = question.querySelector('input[type="text"]');
-                if (inputField) {
-                    inputField.classList.remove('highlight-correct', 'highlight-incorrect');
-                }
-            }
-
-            for (let i = 0; i < questions.length; i++) {
-                const question = questions[i];
-                const item = vocabularyList[i];
-
-                if (question.querySelector('input[type="radio"]')) {
-                    // Multiple choice
-                    const selectedOption = question.querySelector(`input[name="q${i}"]:checked`);
-                    if (selectedOption) {
-                        if (selectedOption.value === item.english) {
-                            score++;
-                            selectedOption.parentElement.classList.add('highlight-correct');
-                        } else {
-                            selectedOption.parentElement.classList.add('highlight-incorrect');
-                        }
-
-                        // Highlight correct answer
-                        Array.from(question.querySelectorAll('input[type="radio"]')).forEach(option => {
-                            if (option.value === item.english) {
-                                option.parentElement.classList.add('highlight-correct');
-                            }
-                        });
+            Array.from(questions).forEach(question => {
+                const inputs = question.getElementsByTagName('input');
+                Array.from(inputs).forEach(input => {
+                    if (input.type === 'radio') {
+                        input.checked = false; // Reset radio buttons
                     }
-                } else {
-                    // Open-ended
-                    const userAnswer = question.querySelector(`input[name="q${i}"]`).value.trim().toLowerCase();
-                    const correctAnswer = item.spanish.toLowerCase();
-                    
-                    if (userAnswer === correctAnswer) {
+                });
+            });
+
+            // Check answers
+            Array.from(questions).forEach((question, index) => {
+                const correctAnswer = vocabularyList[index].english;
+                if (question.getElementsByTagName('input')[0].checked) {
+                    const selectedAnswer = question.querySelector('input[type="radio"]:checked').value;
+                    if (selectedAnswer === correctAnswer) {
                         score++;
-                        question.querySelector(`input[name="q${i}"]`).classList.add('highlight-correct');
                     } else {
-                        question.querySelector(`input[name="q${i}"]`).classList.add('highlight-incorrect');
+                        // Highlight incorrect answers
+                        question.querySelector('input[type="radio"][value="' + selectedAnswer + '"]').parentElement.classList.add('highlight-incorrect');
                     }
                 }
-            }
+            });
 
-            document.getElementById('result').innerText = `You scored ${score} out of ${questions.length}!`;
+            document.getElementById('result').innerText = `Your score: ${score} out of ${questions.length}`;
+        }
+
+        function checkOpenEndedAnswers() {
+            const quizContainer = document.getElementById('quiz-container');
+            const questions = quizContainer.getElementsByClassName('question');
+            let score = 0;
+
+            Array.from(questions).forEach((question, index) => {
+                const userAnswer = question.querySelector('input[type="text"]').value.trim().toLowerCase();
+                const correctAnswer = vocabularyList[index].spanish.toLowerCase();
+
+                if (userAnswer === correctAnswer) {
+                    score++;
+                    question.querySelector('input[type="text"]').classList.add('highlight-correct'); // Highlight correct answer
+                } else {
+                    question.querySelector('input[type="text"]').classList.add('highlight-incorrect'); // Highlight incorrect answer
+                    question.querySelector('input[type="text"]').value = correctAnswer; // Show the correct answer
+                }
+            });
+
+            document.getElementById('result').innerText = `Your score: ${score} out of ${questions.length}`;
         }
 
         function returnToQuizMenu() {
-            document.getElementById('quiz-container').style.display = 'none';
-            document.getElementById('submit-button').style.display = 'none';
-            document.getElementById('return-to-quiz-button').style.display = 'none';
-            document.getElementById('result').innerText = '';
+            document.getElementById('quiz-container').style.display = 'none'; // Hide quiz container
+            document.getElementById('submit-button').style.display = 'none'; // Hide submit button
+            document.getElementById('return-to-quiz-button').style.display = 'none'; // Hide return button
             document.getElementById('main-menu').style.display = 'block'; // Show main menu
-        }
-
-        function returnToMainMenu() {
-            document.getElementById('quiz-container').style.display = 'none';
-            document.getElementById('submit-button').style.display = 'none';
-            document.getElementById('return-to-quiz-button').style.display = 'none';
-            document.getElementById('return-to-main-button').style.display = 'none';
-            document.getElementById('result').innerText = '';
-            document.getElementById('main-menu').style.display = 'block'; // Show main menu
+            document.getElementById('result').innerText = ''; // Clear result
         }
     </script>
 </body>

@@ -131,7 +131,7 @@
                 const options = [item.english, ...incorrectOptions].sort(() => Math.random() - 0.5); // Shuffle options
 
                 questionDiv.innerHTML = `
-                    <p>${index + 1}. What does <strong>"${item.spanish}"</strong> mean?</p>
+                    <p>${index + 1}. What does <strong>"${item.spanish}"</strong> mean in English?</p>
                 `;
                 options.forEach(option => {
                     questionDiv.innerHTML += `

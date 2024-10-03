@@ -73,28 +73,71 @@
     <p id="result"></p>
 
     <script>
+        // Load the quiz when the page loads
+        window.onload = loadQuiz;
+
         function loadQuiz() {
             // Retrieve vocabulary list from session storage
             const vocabList = JSON.parse(sessionStorage.getItem('vocabularyList')) || [];
+            const allVocab = loadAllVocabulary(); // Load all vocabulary for incorrect answers
 
-            // Container for quiz
             const quizContainer = document.getElementById('quiz-container');
             quizContainer.innerHTML = '';
 
             vocabList.forEach((vocab, index) => {
-                const [spanish, english] = vocab.split(' - ');
+                const [spanish, correctAnswer] = vocab.split(' - ');
+
+                // Generate incorrect options
+                const incorrectOptions = getIncorrectOptions(allVocab, correctAnswer);
+                const options = [correctAnswer, ...incorrectOptions].sort(() => Math.random() - 0.5); // Shuffle options
+
                 const questionDiv = document.createElement('div');
                 questionDiv.classList.add('question');
-                
+
                 questionDiv.innerHTML = `
                     <p>${index + 1}. What does <strong>"${spanish}"</strong> mean?</p>
-                    <label><input type="radio" name="q${index}" value="a"> ${english}</label>
-                    <label><input type="radio" name="q${index}" value="b"> Incorrect Option 1</label>
-                    <label><input type="radio" name="q${index}" value="c"> Incorrect Option 2</label>
                 `;
+                options.forEach(option => {
+                    questionDiv.innerHTML += `
+                        <label>
+                            <input type="radio" name="q${index}" value="${option}"> ${option}
+                        </label>
+                    `;
+                });
 
                 quizContainer.appendChild(questionDiv);
             });
+        }
+
+        function getIncorrectOptions(allVocab, correctAnswer) {
+            const incorrectOptions = [];
+            const uniqueAnswers = new Set(); // To avoid duplicates
+
+            while (incorrectOptions.length < 2) {
+                const randomIndex = Math.floor(Math.random() * allVocab.length);
+                const option = allVocab[randomIndex].split(' - ')[1]; // Get the English meaning
+
+                // Ensure it's not the correct answer and is unique
+                if (option !== correctAnswer && !uniqueAnswers.has(option)) {
+                    incorrectOptions.push(option);
+                    uniqueAnswers.add(option);
+                }
+            }
+            return incorrectOptions;
+        }
+
+        function loadAllVocabulary() {
+            // Return all vocabulary from other files (could be hardcoded or fetched)
+            return [
+                "adarga - shield",
+                "rocín - nag",
+                "galgo - greyhound",
+                "caballero - knight",
+                "mujer - woman",
+                "caballo - horse",
+                "aventura - adventure",
+                "lucha - struggle"
+            ];
         }
 
         function checkAnswers() {
@@ -105,15 +148,13 @@
                 const [spanish, correctAnswer] = vocab.split(' - ');
                 const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
 
-                if (selectedOption && selectedOption.parentElement.textContent.includes(correctAnswer)) {
+                if (selectedOption && selectedOption.value === correctAnswer) {
                     score++;
                 }
             });
 
             document.getElementById('result').innerText = `You scored ${score} out of ${vocabList.length}!`;
         }
-
-        window.onload = loadQuiz;
     </script>
 </body>
 </html>

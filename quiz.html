@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocabulary Quiz - Spanish Literature</title>
+    <title>Spanish Vocabulary Quiz</title>
     <style>
         body {
             font-family: 'Georgia', serif;
@@ -30,8 +30,27 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .question {
-            margin-bottom: 20px;
+        #result {
+            text-align: center;
+            font-size: 1.5em;
+            color: #2e7d32;
+            margin-top: 20px;
+        }
+
+        button {
+            display: block;
+            background-color: #d35400;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 20px auto;
+        }
+
+        button:hover {
+            background-color: #bf360c;
         }
 
         label {
@@ -51,59 +70,60 @@
             background-color: #ffccbc; /* Light red */
         }
 
-        button {
-            display: block;
-            background-color: #d35400;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 5px;
-            margin: 20px auto;
-        }
-
-        button:hover {
-            background-color: #bf360c;
-        }
-
-        #result {
+        #question-type-container {
             text-align: center;
-            font-size: 1.5em;
-            color: #2e7d32;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Spanish Vocabulary Quiz</h1>
+    <div id="question-type-container">
+        <button onclick="startQuiz('multiple-choice')">Multiple Choice Questions</button>
+        <button onclick="startQuiz('open-ended')">Open Questions</button>
+    </div>
     <div id="quiz-container"></div>
-    <button onclick="checkAnswers()">Submit Answers</button>
+    <button id="submit-button" style="display: none;" onclick="checkAnswers()">Submit Answers</button>
     <p id="result"></p>
 
     <script>
-        // Load the quiz when the page loads
-        window.onload = loadQuiz;
+        const vocabularyList = [
+            { spanish: "caballero", english: "knight" },
+            { spanish: "mujer", english: "woman" },
+            { spanish: "caballo", english: "horse" },
+            { spanish: "aventura", english: "adventure" },
+            { spanish: "lucha", english: "struggle" },
+            { spanish: "adarga", english: "shield" },
+            { spanish: "rocín", english: "nag" },
+            { spanish: "galgo", english: "greyhound" }
+        ];
 
-        function loadQuiz() {
-            // Retrieve vocabulary list from session storage
-            const vocabList = JSON.parse(sessionStorage.getItem('vocabularyList')) || [];
-            const allVocab = loadAllVocabulary(); // Load all vocabulary for incorrect answers
-
+        function startQuiz(type) {
             const quizContainer = document.getElementById('quiz-container');
-            quizContainer.innerHTML = '';
+            quizContainer.innerHTML = ''; // Clear previous content
+            document.getElementById('result').innerText = '';
+            document.getElementById('submit-button').style.display = 'none';
 
-            vocabList.forEach((vocab, index) => {
-                const [spanish, correctAnswer] = vocab.split(' - ');
+            if (type === 'multiple-choice') {
+                generateMultipleChoiceQuiz(quizContainer);
+            } else if (type === 'open-ended') {
+                generateOpenEndedQuiz(quizContainer);
+            }
 
-                // Generate incorrect options
-                const incorrectOptions = getIncorrectOptions(allVocab, correctAnswer);
-                const options = [correctAnswer, ...incorrectOptions].sort(() => Math.random() - 0.5); // Shuffle options
+            document.getElementById('submit-button').style.display = 'block';
+        }
 
+        function generateMultipleChoiceQuiz(container) {
+            vocabularyList.forEach((item, index) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.classList.add('question');
 
+                // Generate incorrect options
+                const incorrectOptions = getIncorrectOptions(item.english);
+                const options = [item.english, ...incorrectOptions].sort(() => Math.random() - 0.5); // Shuffle options
+
                 questionDiv.innerHTML = `
-                    <p>${index + 1}. What does <strong>"${spanish}"</strong> mean?</p>
+                    <p>${index + 1}. What does <strong>"${item.spanish}"</strong> mean?</p>
                 `;
                 options.forEach(option => {
                     questionDiv.innerHTML += `
@@ -113,79 +133,83 @@
                     `;
                 });
 
-                quizContainer.appendChild(questionDiv);
+                container.appendChild(questionDiv);
             });
         }
 
-        function getIncorrectOptions(allVocab, correctAnswer) {
-            const incorrectOptions = [];
-            const uniqueAnswers = new Set(); // To avoid duplicates
+        function generateOpenEndedQuiz(container) {
+            vocabularyList.forEach((item, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
 
-            while (incorrectOptions.length < 2) {
-                const randomIndex = Math.floor(Math.random() * allVocab.length);
-                const option = allVocab[randomIndex].split(' - ')[1]; // Get the English meaning
+                questionDiv.innerHTML = `
+                    <p>${index + 1}. What does <strong>"${item.spanish}"</strong> mean?</p>
+                    <input type="text" name="q${index}" />
+                `;
 
-                // Ensure it's not the correct answer and is unique
-                if (option !== correctAnswer && !uniqueAnswers.has(option)) {
-                    incorrectOptions.push(option);
-                    uniqueAnswers.add(option);
-                }
-            }
-            return incorrectOptions;
+                container.appendChild(questionDiv);
+            });
         }
 
-        function loadAllVocabulary() {
-            // Return all vocabulary from other files (could be hardcoded or fetched)
-            return [
-                "adarga - shield",
-                "rocín - nag",
-                "galgo - greyhound",
-                "caballero - knight",
-                "mujer - woman",
-                "caballo - horse",
-                "aventura - adventure",
-                "lucha - struggle"
-            ];
+        function getIncorrectOptions(correctAnswer) {
+            const incorrectOptions = new Set();
+            while (incorrectOptions.size < 2) {
+                const randomIndex = Math.floor(Math.random() * vocabularyList.length);
+                const randomWord = vocabularyList[randomIndex].english;
+
+                if (randomWord !== correctAnswer) {
+                    incorrectOptions.add(randomWord);
+                }
+            }
+            return Array.from(incorrectOptions);
         }
 
         function checkAnswers() {
-            const vocabList = JSON.parse(sessionStorage.getItem('vocabularyList')) || [];
+            const quizContainer = document.getElementById('quiz-container');
+            const questions = quizContainer.getElementsByClassName('question');
             let score = 0;
-            const totalQuestions = vocabList.length;
 
-            // Reset highlighting before checking
-            const questionDivs = document.querySelectorAll('.question');
-            questionDivs.forEach(div => {
-                div.querySelectorAll('label').forEach(label => {
+            // Reset previous highlights
+            for (let question of questions) {
+                question.querySelectorAll('label').forEach(label => {
                     label.classList.remove('correct', 'incorrect');
                 });
-            });
+            }
 
-            // Iterate through each question
-            vocabList.forEach((vocab, index) => {
-                const [spanish, correctAnswer] = vocab.split(' - ');
-                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+            for (let i = 0; i < questions.length; i++) {
+                const question = questions[i];
+                const item = vocabularyList[i];
 
-                // Check if the answer is correct
-                if (selectedOption) {
-                    if (selectedOption.value === correctAnswer) {
+                if (question.querySelector('input[type="radio"]')) {
+                    // Multiple choice
+                    const selectedOption = question.querySelector(`input[name="q${i}"]:checked`);
+                    if (selectedOption) {
+                        if (selectedOption.value === item.english) {
+                            score++;
+                            selectedOption.parentElement.classList.add('correct');
+                        } else {
+                            selectedOption.parentElement.classList.add('incorrect');
+                        }
+
+                        // Highlight correct answer
+                        Array.from(question.querySelectorAll('input[type="radio"]')).forEach(option => {
+                            if (option.value === item.english) {
+                                option.parentElement.classList.add('correct');
+                            }
+                        });
+                    }
+                } else {
+                    // Open-ended
+                    const userAnswer = question.querySelector(`input[name="q${i}"]`).value.trim().toLowerCase();
+                    if (userAnswer === item.english.toLowerCase()) {
                         score++;
-                        selectedOption.parentElement.classList.add('correct'); // Highlight correct answer
                     } else {
-                        selectedOption.parentElement.classList.add('incorrect'); // Highlight selected wrong answer
+                        question.querySelector(`input[name="q${i}"]`).classList.add('incorrect');
                     }
                 }
+            }
 
-                // Highlight the correct answer if it wasn't selected
-                const allOptions = questionDivs[index].querySelectorAll('input[type="radio"]');
-                allOptions.forEach(option => {
-                    if (option.value === correctAnswer) {
-                        option.parentElement.classList.add('correct'); // Highlight correct answer
-                    }
-                });
-            });
-
-            document.getElementById('result').innerText = `You scored ${score} out of ${totalQuestions}!`;
+            document.getElementById('result').innerText = `You scored ${score} out of ${questions.length}!`;
         }
     </script>
 </body>

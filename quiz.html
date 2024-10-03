@@ -196,6 +196,8 @@
                     question.querySelectorAll('input[type="radio"]').forEach(radio => {
                         if (radio.value === correctAnswer) {
                             radio.parentElement.classList.add('highlight-correct'); // Correct answer highlight
+                        } else {
+                            radio.parentElement.classList.remove('highlight-correct'); // Remove highlight if it was previously set
                         }
                     });
 

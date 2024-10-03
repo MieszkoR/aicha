@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Quiz - Spanish Literature</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f7f3e9;
+            color: #333;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4e342e;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 1em;
+        }
+
+        #quiz-container {
+            background-color: #fff3e0;
+            border: 2px solid #e0a96d;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            padding: 5px;
+            background-color: #ffccbc;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        button {
+            display: block;
+            background-color: #d35400;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 20px auto;
+        }
+
+        button:hover {
+            background-color: #bf360c;
+        }
+
+        #result {
+            text-align: center;
+            font-size: 1.5em;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <h1>Spanish Vocabulary Quiz</h1>
+    <div id="quiz-container"></div>
+    <button onclick="checkAnswers()">Submit Answers</button>
+    <p id="result"></p>
+
+    <script>
+        function loadQuiz() {
+            // Retrieve vocabulary list from session storage
+            const vocabList = JSON.parse(sessionStorage.getItem('vocabularyList')) || [];
+
+            // Container for quiz
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = '';
+
+            vocabList.forEach((vocab, index) => {
+                const [spanish, english] = vocab.split(' - ');
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                
+                questionDiv.innerHTML = `
+                    <p>${index + 1}. What does <strong>"${spanish}"</strong> mean?</p>
+                    <label><input type="radio" name="q${index}" value="a"> ${english}</label>
+                    <label><input type="radio" name="q${index}" value="b"> Incorrect Option 1</label>
+                    <label><input type="radio" name="q${index}" value="c"> Incorrect Option 2</label>
+                `;
+
+                quizContainer.appendChild(questionDiv);
+            });
+        }
+
+        function checkAnswers() {
+            const vocabList = JSON.parse(sessionStorage.getItem('vocabularyList')) || [];
+            let score = 0;
+
+            vocabList.forEach((vocab, index) => {
+                const [spanish, correctAnswer] = vocab.split(' - ');
+                const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
+
+                if (selectedOption && selectedOption.parentElement.textContent.includes(correctAnswer)) {
+                    score++;
+                }
+            });
+
+            document.getElementById('result').innerText = `You scored ${score} out of ${vocabList.length}!`;
+        }
+
+        window.onload = loadQuiz;
+    </script>
+</body>
+</html>

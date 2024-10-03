@@ -1,0 +1,10 @@
+El mar brillaba bajo la luz del sol, reflejando un azul profundo que parecía infinito. Los pescadores, con sus redes al hombro, caminaban lentamente hacia sus barcas, preparándose para un largo día de trabajo. La playa estaba tranquila, y solo el sonido de las olas rompía el silencio de la mañana.
+
+Una gaviota se lanzó en picado hacia el agua, buscando un pez para su desayuno. A lo lejos, se podía ver el perfil de una isla solitaria, envuelta en una neblina que la hacía parecer un sueño lejano e inalcanzable.
+
+mar - sea
+redes - nets
+barcas - boats
+olas - waves
+gaviota - seagull
+neblina - mist

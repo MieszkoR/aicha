@@ -157,7 +157,13 @@
                 const [spanish, correctAnswer] = vocab.split(' - ');
                 const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
 
+                // Get the question div to highlight answers
                 const questionDiv = document.querySelector(`.question:nth-child(${index + 1})`);
+
+                // Clear previous highlights
+                questionDiv.querySelectorAll('label').forEach(label => {
+                    label.classList.remove('correct', 'incorrect');
+                });
 
                 // Check if the answer is correct
                 if (selectedOption) {

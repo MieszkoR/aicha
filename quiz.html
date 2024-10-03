@@ -1,4 +1,4 @@
-v<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -207,7 +207,11 @@ v<!DOCTYPE html>
                             score++;
                         } else {
                             // Highlight incorrect answers
-                            question.querySelector('input[type="radio"][value="' + answerValue + '"]').parentElement.classList.add('highlight-incorrect');
+                            question.querySelectorAll('input[type="radio"]').forEach(radio => {
+                                if (radio.value === answerValue) {
+                                    radio.parentElement.classList.add('highlight-incorrect'); // Highlight selected incorrect answer
+                                }
+                            });
                         }
                     }
                     // Disable all radio buttons after submitting
@@ -240,6 +244,7 @@ v<!DOCTYPE html>
             document.getElementById('submit-button').style.display = 'none'; // Hide submit button
             document.getElementById('return-to-quiz-button').style.display = 'none'; // Hide return button
             document.getElementById('main-menu').style.display = 'block'; // Show main menu
+            document.getElementById('result').innerText = ''; // Clear previous results
         }
     </script>
 </body>

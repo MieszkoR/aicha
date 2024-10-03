@@ -153,18 +153,18 @@
             let score = 0;
             const totalQuestions = vocabList.length;
 
+            // Reset highlighting before checking
+            const questionDivs = document.querySelectorAll('.question');
+            questionDivs.forEach(div => {
+                div.querySelectorAll('label').forEach(label => {
+                    label.classList.remove('correct', 'incorrect');
+                });
+            });
+
             // Iterate through each question
             vocabList.forEach((vocab, index) => {
                 const [spanish, correctAnswer] = vocab.split(' - ');
                 const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
-
-                // Get the question div to highlight answers
-                const questionDiv = document.querySelector(`.question:nth-child(${index + 1})`);
-
-                // Clear previous highlights
-                questionDiv.querySelectorAll('label').forEach(label => {
-                    label.classList.remove('correct', 'incorrect');
-                });
 
                 // Check if the answer is correct
                 if (selectedOption) {
@@ -177,7 +177,7 @@
                 }
 
                 // Highlight the correct answer if it wasn't selected
-                const allOptions = questionDiv.querySelectorAll('input[type="radio"]');
+                const allOptions = questionDivs[index].querySelectorAll('input[type="radio"]');
                 allOptions.forEach(option => {
                     if (option.value === correctAnswer) {
                         option.parentElement.classList.add('correct'); // Highlight correct answer

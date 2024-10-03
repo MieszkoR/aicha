@@ -163,7 +163,7 @@
             const incorrectOptions = new Set();
             while (incorrectOptions.size < 2) {
                 const randomIndex = Math.floor(Math.random() * vocabularyList.length);
-                const randomWord = vocabularyList[randomIndex].spanish; // Get incorrect Spanish words
+                const randomWord = vocabularyList[randomIndex].english; // Get incorrect English words
 
                 if (randomWord !== correctAnswer) {
                     incorrectOptions.add(randomWord);

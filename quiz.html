@@ -153,6 +153,7 @@
             let score = 0;
             const totalQuestions = vocabList.length;
 
+            // Iterate through each question
             vocabList.forEach((vocab, index) => {
                 const [spanish, correctAnswer] = vocab.split(' - ');
                 const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);

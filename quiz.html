@@ -110,6 +110,8 @@
             { spanish: "galgo", english: "greyhound" }
         ];
 
+        let currentQuizType = '';
+
         function startQuiz(type) {
             document.getElementById('main-menu').style.display = 'none'; // Hide main menu
             const quizContainer = document.getElementById('quiz-container');
@@ -118,6 +120,8 @@
             document.getElementById('submit-button').style.display = 'block';
             document.getElementById('return-to-quiz-button').style.display = 'block';
             quizContainer.style.display = 'block'; // Show quiz container
+
+            currentQuizType = type; // Store the current quiz type
 
             if (type === 'multiple-choice') {
                 generateMultipleChoiceQuiz(quizContainer);
@@ -182,46 +186,40 @@
             const questions = quizContainer.getElementsByClassName('question');
             let score = 0;
 
-            // Reset previous highlights
-            Array.from(questions).forEach(question => {
-                const inputs = question.getElementsByTagName('input');
-                Array.from(inputs).forEach(input => {
-                    if (input.type === 'radio') {
-                        input.checked = false; // Reset radio buttons
-                    } else if (input.type === 'text') {
-                        input.classList.remove('highlight-correct');
-                        input.classList.remove('highlight-incorrect');
+            // Check answers for multiple choice
+            if (currentQuizType === 'multiple-choice') {
+                Array.from(questions).forEach((question, index) => {
+                    const correctAnswer = vocabularyList[index].english;
+                    const selectedAnswer = question.querySelector('input[type="radio"]:checked');
+
+                    if (selectedAnswer) {
+                        const answerValue = selectedAnswer.value;
+                        if (answerValue === correctAnswer) {
+                            score++;
+                        } else {
+                            // Highlight incorrect answers
+                            question.querySelector('input[type="radio"][value="' + answerValue + '"]').parentElement.classList.add('highlight-incorrect');
+                        }
+                    } else {
+                        // Optionally handle unanswered questions here
                     }
                 });
-            });
-
-            // Check answers for multiple choice
-            Array.from(questions).forEach((question, index) => {
-                const correctAnswer = vocabularyList[index].english;
-                if (question.getElementsByTagName('input')[0].checked) {
-                    const selectedAnswer = question.querySelector('input[type="radio"]:checked').value;
-                    if (selectedAnswer === correctAnswer) {
-                        score++;
-                    } else {
-                        // Highlight incorrect answers
-                        question.querySelector('input[type="radio"][value="' + selectedAnswer + '"]').parentElement.classList.add('highlight-incorrect');
-                    }
-                }
-            });
-
+            } 
             // Check answers for open-ended
-            Array.from(questions).forEach((question, index) => {
-                const userAnswer = question.querySelector('input[type="text"]').value.trim().toLowerCase();
-                const correctAnswer = vocabularyList[index].spanish.toLowerCase();
+            else if (currentQuizType === 'open-ended') {
+                Array.from(questions).forEach((question, index) => {
+                    const userAnswer = question.querySelector('input[type="text"]').value.trim().toLowerCase();
+                    const correctAnswer = vocabularyList[index].spanish.toLowerCase();
 
-                if (userAnswer === correctAnswer) {
-                    score++;
-                    question.querySelector('input[type="text"]').classList.add('highlight-correct'); // Highlight correct answer
-                } else {
-                    question.querySelector('input[type="text"]').classList.add('highlight-incorrect'); // Highlight incorrect answer
-                    question.querySelector('input[type="text"]').value = correctAnswer; // Show the correct answer
-                }
-            });
+                    if (userAnswer === correctAnswer) {
+                        score++;
+                        question.querySelector('input[type="text"]').classList.add('highlight-correct'); // Highlight correct answer
+                    } else {
+                        question.querySelector('input[type="text"]').classList.add('highlight-incorrect'); // Highlight incorrect answer
+                        question.querySelector('input[type="text"]').value = correctAnswer; // Show the correct answer
+                    }
+                });
+            }
 
             document.getElementById('result').innerText = `Your score: ${score} out of ${questions.length}`;
         }

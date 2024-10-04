@@ -3,35 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Quiz</title>
+    <title>Daily Vocabulary Quiz</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to shared styles for consistency -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
             background-color: #f9f9f9;
             color: #333;
+            margin: 0;
+            padding: 20px;
         }
 
         .container {
             max-width: 800px;
             margin: auto;
-            padding: 20px;
             background-color: #fff;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
         }
 
         .question {
             margin-bottom: 20px;
-        }
-
-        .correct-answer {
-            color: green;
-        }
-
-        .incorrect-answer {
-            color: red;
         }
 
         .button {
@@ -56,6 +53,38 @@
         .return-button:hover {
             background-color: #0056b3;
         }
+
+        input[type="text"] {
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .correct-answer {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .incorrect-answer {
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        #score {
+            font-size: 1.2em;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +102,9 @@
             <button id="return-to-quiz-menu" class="button return-button">Return to Quiz Menu</button>
         </div>
 
+        <!-- Score display -->
+        <div id="score"></div>
+
         <!-- Return to main page button -->
         <button onclick="window.location.href='index.html'" class="button return-button">Return to Main Page</button>
     </div>
@@ -82,6 +114,7 @@
         const vocabularyList = JSON.parse(localStorage.getItem('vocabularyList')) || [];
         let quizType = '';
 
+        // Button to choose open or closed questions
         document.getElementById('open-questions').onclick = () => {
             quizType = 'open';
             displayQuestions();
@@ -92,11 +125,13 @@
             displayQuestions();
         };
 
+        // Button to return to quiz menu
         document.getElementById('return-to-quiz-menu').onclick = () => {
             document.getElementById('questions-container').style.display = 'none';
-            document.getElementById('result-container').innerHTML = '';
+            document.getElementById('score').innerHTML = '';
         };
 
+        // Display quiz questions based on type chosen
         function displayQuestions() {
             const form = document.getElementById('quiz-form');
             form.innerHTML = '';  // Clear previous questions
@@ -127,44 +162,48 @@
             document.getElementById('questions-container').style.display = 'block';
         }
 
+        // Function to get random answers for closed questions
         function getRandomAnswers(correctItem) {
-            // Get three wrong answers randomly
             const wrongAnswers = vocabularyList
                 .filter(item => item.spanish !== correctItem.spanish)
                 .map(item => item.spanish)
-                .sort(() => 0.5 - Math.random()) // Shuffle the list
-                .slice(0, 3); // Take the first three wrong answers
+                .sort(() => 0.5 - Math.random())
+                .slice(0, 3); // Take three wrong answers
 
-            // Add the correct answer and shuffle
             return [...wrongAnswers, correctItem.spanish].sort(() => 0.5 - Math.random());
         }
 
+        // Submit quiz button functionality
         document.getElementById('submit-quiz').onclick = () => {
+            let score = 0;
+
             vocabularyList.forEach((item, index) => {
                 if (quizType === 'open') {
-                    // Get user answer for open questions
+                    // Handling open-ended questions
                     const userAnswerElement = document.getElementById(`answer-${index}`);
                     const userAnswer = userAnswerElement?.value?.trim();
 
                     if (userAnswer && userAnswer.toLowerCase() === item.spanish.toLowerCase()) {
-                        userAnswerElement.classList.add('correct-answer');
+                        userAnswerElement.classList.add('correct');
+                        score++;
                     } else {
-                        userAnswerElement.classList.add('incorrect-answer');
+                        userAnswerElement.classList.add('incorrect');
                         userAnswerElement.insertAdjacentHTML('afterend', ` <span class="correct-answer">(${item.spanish})</span>`);
                     }
                 } else if (quizType === 'closed') {
-                    // Get selected option for closed questions
+                    // Handling multiple choice questions
                     const options = document.getElementsByName(`closed-answer-${index}`);
                     options.forEach(option => {
                         if (option.checked) {
                             if (option.value.toLowerCase() === item.spanish.toLowerCase()) {
-                                option.nextElementSibling.classList.add('correct-answer');
+                                option.nextElementSibling.classList.add('correct');
+                                score++;
                             } else {
                                 option.nextElementSibling.classList.add('incorrect-answer');
                             }
                         }
 
-                        // Highlight the correct answer
+                        // Highlight correct answer
                         if (option.value.toLowerCase() === item.spanish.toLowerCase()) {
                             option.nextElementSibling.classList.add('correct-answer');
                         }
@@ -174,6 +213,9 @@
                     });
                 }
             });
+
+            // Display score to user
+            document.getElementById('score').innerText = `Your score: ${score}/${vocabularyList.length}`;
         };
     </script>
 </body>

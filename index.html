@@ -58,6 +58,13 @@
         #start-quiz-button:hover {
             background-color: #bf360c;
         }
+
+        #footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #555;
+        }
     </style>
 </head>
 
@@ -72,6 +79,9 @@
             <li>Loading vocabulary...</li>
         </ul>
         <button id="start-quiz-button">Start Vocabulary Quiz</button>
+    </div>
+    <div id="footer">
+        <p>Made by ChatGPT</p>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -90,9 +100,13 @@
                         return response.text();
                     })
                     .then(text => {
+                        console.log(`Loaded content from ${file}`); // Log loaded content
+                        console.log(text); // Show content for debugging
+
                         // Separate the fragment and the vocabulary using a unique delimiter
                         const parts = text.split('\n\nVocabulary:\n');
                         if (parts.length < 2) {
+                            console.error("Improper file format"); // Log error message
                             throw new Error("Improper file format");
                         }
 

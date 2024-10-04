@@ -1,9 +1,7 @@
-En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lentejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda.
-
+La vida es sueño, y los sueños, sueños son. En esta obra de Calderón, se explora la naturaleza de la realidad y la ilusión.
 Vocabulary:
-lugar: place
-hidalgo: nobleman
-lanza: lance
-olla: stew
-galgo: greyhound
-hacienda: estate
+vida: life
+sueño: dream
+obra: work
+explora: explores
+naturaleza: nature

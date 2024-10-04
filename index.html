@@ -87,73 +87,69 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Get today's date in YYYY-MM-DD format
             const today = new Date().toISOString().split('T')[0];
-            const defaultFile = 'default.txt';
-            const filename = `${today}.txt`;
+            const defaultFile = 'default';
+            const literatureFilename = `${today}.txt`;
+            const vocabularyFilename = `${today}-vocab.txt`;
 
-            console.log(`Attempting to load file: ${filename}`);  // Log for debugging
+            console.log(`Attempting to load file: ${literatureFilename} and ${vocabularyFilename}`);  // Log for debugging
 
             // Function to load the content from a file
-            function loadContent(file) {
-                fetch(file)
-                    .then(response => {
-                        if (!response.ok) throw new Error('File not found');
+            function loadContent(literatureFile, vocabularyFile) {
+                Promise.all([
+                    fetch(literatureFile).then(response => {
+                        if (!response.ok) throw new Error('Literature file not found');
+                        return response.text();
+                    }),
+                    fetch(vocabularyFile).then(response => {
+                        if (!response.ok) throw new Error('Vocabulary file not found');
                         return response.text();
                     })
-                    .then(text => {
-                        console.log(`Loaded content from ${file}`); // Log loaded content
-                        console.log(text); // Show content for debugging
+                ])
+                .then(([literatureText, vocabularyText]) => {
+                    console.log(`Loaded content from ${literatureFile} and ${vocabularyFile}`); // Log loaded content
 
-                        // Separate the fragment and the vocabulary using a unique delimiter
-                        const parts = text.split('\n\nVocabulary:\n');
-                        if (parts.length < 2) {
-                            console.error("Improper file format"); // Log error message
-                            throw new Error("Improper file format");
-                        }
+                    // Display the literature fragment
+                    document.getElementById('literature-content').textContent = literatureText;
 
-                        const fragment = parts[0].trim();
-                        const vocabularyText = parts[1].trim();
-
-                        // Display the fragment
-                        document.getElementById('literature-content').textContent = fragment;
-
-                        // Parse and display the vocabulary list
-                        const vocabularyList = vocabularyText.split('\n').map(line => {
-                            const [spanish, english] = line.split(':');
-                            return { spanish: spanish.trim(), english: english.trim() };
-                        });
-
-                        const vocabContainer = document.getElementById('vocabulary-list');
-                        vocabContainer.innerHTML = ''; // Clear loading text
-
-                        vocabularyList.forEach(item => {
-                            const li = document.createElement('li');
-                            li.textContent = `${item.spanish} - ${item.english}`;
-                            vocabContainer.appendChild(li);
-                        });
-
-                        // Enable the quiz button if vocabulary is available
-                        const quizButton = document.getElementById('start-quiz-button');
-                        quizButton.style.display = 'block';
-                        quizButton.onclick = () => {
-                            // Store the vocabulary list in local storage to be used in the quiz
-                            localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
-                            window.location.href = 'quiz.html';
-                        };
-                    })
-                    .catch(error => {
-                        console.error('Error loading file:', error);
-                        if (file !== defaultFile) {
-                            console.log(`Attempting to load fallback file: ${defaultFile}`); // Log for debugging
-                            loadContent(defaultFile);
-                        } else {
-                            document.getElementById('literature-content').textContent = "Sorry, today's content is not available.";
-                            document.getElementById('vocabulary-list').innerHTML = '<li>No vocabulary available.</li>';
-                        }
+                    // Parse and display the vocabulary list
+                    const vocabularyList = vocabularyText.split('\n').map(line => {
+                        const [spanish, english] = line.split(':');
+                        return { spanish: spanish.trim(), english: english.trim() };
                     });
+
+                    const vocabContainer = document.getElementById('vocabulary-list');
+                    vocabContainer.innerHTML = ''; // Clear loading text
+
+                    vocabularyList.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `${item.spanish} - ${item.english}`;
+                        vocabContainer.appendChild(li);
+                    });
+
+                    // Enable the quiz button if vocabulary is available
+                    const quizButton = document.getElementById('start-quiz-button');
+                    quizButton.style.display = 'block';
+                    quizButton.onclick = () => {
+                        // Store the vocabulary list in local storage to be used in the quiz
+                        localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
+                        window.location.href = 'quiz.html';
+                    };
+                })
+                .catch(error => {
+                    console.error('Error loading files:', error);
+                    // Attempt to load fallback files
+                    if (literatureFile !== `${defaultFile}.txt`) {
+                        console.log(`Attempting to load fallback literature file: ${defaultFile}.txt`); // Log for debugging
+                        loadContent(`${defaultFile}.txt`, `${defaultFile}-vocab.txt`);
+                    } else {
+                        document.getElementById('literature-content').textContent = "Sorry, today's content is not available.";
+                        document.getElementById('vocabulary-list').innerHTML = '<li>No vocabulary available.</li>';
+                    }
+                });
             }
 
             // Load today's content, fallback to default if necessary
-            loadContent(filename);
+            loadContent(literatureFilename, vocabularyFilename);
         });
     </script>
 </body>

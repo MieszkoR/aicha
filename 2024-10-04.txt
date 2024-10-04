@@ -1,8 +1,3 @@
 La vida es sueño, y los sueños, sueños son. En esta obra de Calderón, se explora la naturaleza de la realidad y la ilusión.
 
-Vocabulary:
-vida: life
-sueño: dream
-obra: work
-explora: explores
-naturaleza: nature
+

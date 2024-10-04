@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,10 +52,12 @@
 
         .correct {
             background-color: #c8e6c9;
+            padding: 5px;
         }
 
         .incorrect {
             background-color: #ffccbc;
+            padding: 5px;
         }
 
         #footer {
@@ -103,6 +104,7 @@
         function displayQuestions() {
             const form = document.getElementById('quiz-form');
             form.innerHTML = '';  // Clear previous questions
+
             vocabularyList.forEach((item, index) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question';
@@ -142,16 +144,20 @@
 
             vocabularyList.forEach((item, index) => {
                 if (quizType === 'open') {
-                    const userAnswer = document.getElementById(`answer-${index}`).value.trim();
-                    const correctAnswer = item.english;
-                    if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-                        correctAnswers++;
-                        resultContainer.innerHTML += `<div class="correct">Correct: ${userAnswer} is ${correctAnswer}.</div>`;
+                    const userAnswer = document.getElementById(`answer-${index}`)?.value?.trim();
+                    if (userAnswer) {
+                        const correctAnswer = item.english;
+                        if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+                            correctAnswers++;
+                            resultContainer.innerHTML += `<div class="correct">Correct: ${userAnswer} is ${correctAnswer}.</div>`;
+                        } else {
+                            resultContainer.innerHTML += `<div class="incorrect">Incorrect: ${userAnswer}. Correct answer is ${correctAnswer}.</div>`;
+                        }
                     } else {
-                        resultContainer.innerHTML += `<div class="incorrect">Incorrect: ${userAnswer}. Correct answer is ${correctAnswer}.</div>`;
+                        resultContainer.innerHTML += `<div class="incorrect">No answer provided for ${item.english}. Correct answer is ${item.english}.</div>`;
                     }
                 } else {
-                    const userAnswer = document.getElementById(`closed-answer-${index}`).value;
+                    const userAnswer = document.getElementById(`closed-answer-${index}`)?.value;
                     const correctAnswer = item.english;
                     if (userAnswer === correctAnswer) {
                         correctAnswers++;
@@ -166,5 +172,4 @@
         };
     </script>
 </body>
-
 </html>

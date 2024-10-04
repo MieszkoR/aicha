@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spanish Vocabulary Quiz</title>
+    <title>Vocabulary Quiz</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: 'Georgia', serif;
@@ -18,218 +20,109 @@
         h1 {
             color: #4e342e;
             text-align: center;
-            font-size: 2.5em;
-            margin-bottom: 1em;
         }
 
-        #quiz-container {
-            background-color: #fff3e0;
-            border: 2px solid #e0a96d;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .question {
+            margin: 20px 0;
         }
 
-        #result {
-            text-align: center;
-            font-size: 1.5em;
-            color: #2e7d32;
-            margin-top: 20px;
+        .answer {
+            margin: 5px 0;
         }
 
-        button {
-            display: block;
+        .correct {
+            background-color: #c8e6c9;
+        }
+
+        .incorrect {
+            background-color: #ffcdd2;
+        }
+
+        #submit-quiz-button {
             background-color: #d35400;
             color: #fff;
             border: none;
             padding: 10px 20px;
-            font-size: 1em;
+            font-size: 1.2em;
             cursor: pointer;
             border-radius: 5px;
             margin: 20px auto;
-        }
-
-        button:hover {
-            background-color: #bf360c;
-        }
-
-        label {
-            display: block;
-            padding: 5px;
-            background-color: #ffccbc;
-            border-radius: 5px;
-            margin: 5px 0;
-            cursor: pointer;
-        }
-
-        .highlight-correct {
-            background-color: #c8e6c9; /* Light green for correct answers */
-        }
-
-        .highlight-incorrect {
-            background-color: #ffccbc; /* Light red for incorrect answers */
-        }
-
-        #question-type-container {
             text-align: center;
-            margin-bottom: 20px;
+            display: block;
         }
 
-        input[type="text"].highlight-incorrect {
-            border: 2px solid #ff0000; /* Red border for incorrect answers */
-        }
-
-        input[type="text"].highlight-correct {
-            border: 2px solid #00ff00; /* Green border for correct answers */
+        #submit-quiz-button:hover {
+            background-color: #bf360c;
         }
     </style>
 </head>
+
 <body>
-    <h1>Spanish Vocabulary Quiz</h1>
-    <div id="main-menu">
-        <div id="question-type-container">
-            <button onclick="startQuiz('multiple-choice')">Multiple Choice Questions</button>
-            <button onclick="startQuiz('open-ended')">Open Questions</button>
-        </div>
-    </div>
-    <div id="quiz-container" style="display: none;"></div>
-    <button id="submit-button" style="display: none;" onclick="checkAnswers()">Submit Answers</button>
-    <button id="return-to-quiz-button" style="display: none;" onclick="returnToQuizMenu()">Return to Quiz Menu</button>
-    <button id="return-to-main-button" onclick="location.href='index.html';">Return to Literature Page</button>
-    <p id="result"></p>
+    <h1>Vocabulary Quiz</h1>
+    <div id="quiz-container"></div>
+    <button id="submit-quiz-button">Submit Answers</button>
 
     <script>
-        let vocabularyList = [];
-
         document.addEventListener('DOMContentLoaded', function () {
-            const storedVocabulary = localStorage.getItem('vocabularyList');
-            if (storedVocabulary) {
-                vocabularyList = JSON.parse(storedVocabulary);
-            } else {
-                alert('No vocabulary available. Please go to the main page first.');
-                window.location.href = 'index.html';
-            }
-        });
-
-        let currentQuizType = '';
-
-        function startQuiz(type) {
-            document.getElementById('main-menu').style.display = 'none'; // Hide main menu
+            const vocabularyList = JSON.parse(localStorage.getItem('vocabularyList'));
             const quizContainer = document.getElementById('quiz-container');
-            quizContainer.innerHTML = ''; // Clear previous content
-            document.getElementById('result').innerText = '';
-            document.getElementById('submit-button').style.display = 'block';
-            document.getElementById('return-to-quiz-button').style.display = 'block';
-            quizContainer.style.display = 'block'; // Show quiz container
 
-            currentQuizType = type; // Store the current quiz type
+            if (vocabularyList && vocabularyList.length > 0) {
+                vocabularyList.forEach((item, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.classList.add('question');
+                    questionDiv.textContent = `What is the English meaning of: ${item.spanish}?`;
 
-            if (type === 'multiple-choice') {
-                generateMultipleChoiceQuiz(quizContainer);
-            } else if (type === 'open-ended') {
-                generateOpenEndedQuiz(quizContainer);
-            }
-        }
+                    const correctAnswer = item.english;
+                    const answers = [correctAnswer];
 
-        function generateMultipleChoiceQuiz(container) {
-            vocabularyList.forEach((item, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.classList.add('question');
-
-                // Generate incorrect options
-                const incorrectOptions = getIncorrectOptions(item.english);
-                const options = [item.english, ...incorrectOptions].sort(() => Math.random() - 0.5); // Shuffle options
-
-                questionDiv.innerHTML = `
-                    <p>${index + 1}. What does <strong>"${item.spanish}"</strong> mean in English?</p>
-                `;
-                options.forEach(option => {
-                    questionDiv.innerHTML += `
-                        <label>
-                            <input type="radio" name="q${index}" value="${option}"> ${option}
-                        </label>
-                    `;
-                });
-
-                container.appendChild(questionDiv);
-            });
-        }
-
-        function generateOpenEndedQuiz(container) {
-            vocabularyList.forEach((item, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.classList.add('question');
-
-                questionDiv.innerHTML = `
-                    <p>${index + 1}. What is the Spanish translation of <strong>"${item.english}"</strong>?</p>
-                    <input type="text" name="q${index}" />
-                `;
-
-                container.appendChild(questionDiv);
-            });
-        }
-
-        function getIncorrectOptions(correctAnswer) {
-            const incorrectOptions = new Set();
-            while (incorrectOptions.size < 2) {
-                const randomIndex = Math.floor(Math.random() * vocabularyList.length);
-                const randomWord = vocabularyList[randomIndex].english; // Get incorrect English words
-
-                if (randomWord !== correctAnswer) {
-                    incorrectOptions.add(randomWord);
-                }
-            }
-            return Array.from(incorrectOptions);
-        }
-
-        function checkAnswers() {
-            const quizContainer = document.getElementById('quiz-container');
-            const questions = quizContainer.querySelectorAll('.question');
-
-            let score = 0;
-
-            questions.forEach((question, index) => {
-                if (currentQuizType === 'multiple-choice') {
-                    const selectedOption = question.querySelector('input[type="radio"]:checked');
-                    if (selectedOption) {
-                        if (selectedOption.value === vocabularyList[index].english) {
-                            selectedOption.parentElement.classList.add('highlight-correct');
-                            score++;
-                        } else {
-                            selectedOption.parentElement.classList.add('highlight-incorrect');
+                    // Generate 3 incorrect answers from other words in the list
+                    while (answers.length < 4) {
+                        const randomIndex = Math.floor(Math.random() * vocabularyList.length);
+                        const randomWord = vocabularyList[randomIndex].english;
+                        if (!answers.includes(randomWord)) {
+                            answers.push(randomWord);
                         }
                     }
-                } else if (currentQuizType === 'open-ended') {
-                    const userAnswer = question.querySelector('input[type="text"]');
-                    if (userAnswer.value.trim().toLowerCase() === vocabularyList[index].spanish.toLowerCase()) {
-                        userAnswer.classList.add('highlight-correct');
-                        score++;
-                    } else {
-                        userAnswer.classList.add('highlight-incorrect');
-                    }
-                }
-            });
 
-            document.getElementById('result').innerText = `You scored ${score} out of ${vocabularyList.length}`;
-            document.getElementById('submit-button').disabled = true; // Prevent changes after submission
+                    // Shuffle the answers
+                    answers.sort(() => Math.random() - 0.5);
 
-            // Disable inputs in multiple-choice quiz after submission
-            if (currentQuizType === 'multiple-choice') {
-                questions.forEach(question => {
-                    const radios = question.querySelectorAll('input[type="radio"]');
-                    radios.forEach(radio => {
-                        radio.disabled = true;
+                    answers.forEach(answer => {
+                        const answerDiv = document.createElement('div');
+                        answerDiv.classList.add('answer');
+                        answerDiv.innerHTML = `<input type="radio" name="question${index}" value="${answer}"> ${answer}`;
+                        questionDiv.appendChild(answerDiv);
+                    });
+
+                    quizContainer.appendChild(questionDiv);
+                });
+
+                document.getElementById('submit-quiz-button').addEventListener('click', function () {
+                    const questions = document.querySelectorAll('.question');
+
+                    questions.forEach((question, index) => {
+                        const selectedAnswer = question.querySelector('input[type="radio"]:checked');
+                        if (selectedAnswer) {
+                            const isCorrect = selectedAnswer.value === vocabularyList[index].english;
+                            if (isCorrect) {
+                                question.classList.add('correct');
+                            } else {
+                                question.classList.add('incorrect');
+                            }
+
+                            // Disable all radio buttons for this question
+                            const inputs = question.querySelectorAll('input[type="radio"]');
+                            inputs.forEach(input => input.disabled = true);
+                        }
                     });
                 });
+            } else {
+                quizContainer.innerHTML = '<p>No vocabulary available for today. Please check back later!</p>';
+                document.getElementById('submit-quiz-button').style.display = 'none';
             }
-        }
-
-        function returnToQuizMenu() {
-            document.getElementById('quiz-container').style.display = 'none'; // Hide quiz container
-            document.getElementById('submit-button').style.display = 'none'; // Hide submit button
-            document.getElementById('main-menu').style.display = 'block'; // Show main menu
-            document.getElementById('result').innerText = ''; // Clear previous results
-        }
+        });
     </script>
 </body>
+
 </html>

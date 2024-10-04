@@ -75,9 +75,12 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Get today's date in YYYY-MM-DD format
             const today = new Date().toISOString().split('T')[0];
             const defaultFile = 'default.txt';
             const filename = `${today}.txt`;
+
+            console.log(`Attempting to load file: ${filename}`);  // Log for debugging
 
             // Function to load the content from a file
             function loadContent(file) {
@@ -126,6 +129,7 @@
                     .catch(error => {
                         console.error('Error loading file:', error);
                         if (file !== defaultFile) {
+                            console.log(`Attempting to load fallback file: ${defaultFile}`); // Log for debugging
                             loadContent(defaultFile);
                         } else {
                             document.getElementById('literature-content').textContent = "Sorry, today's content is not available.";

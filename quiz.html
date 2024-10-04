@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Quiz</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to shared styles to maintain consistency -->
+    <link rel="stylesheet" href="styles.css"> <!-- Link to shared styles for consistency -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,11 +26,11 @@
             margin-bottom: 20px;
         }
 
-        .correct {
+        .correct-answer {
             color: green;
         }
 
-        .incorrect {
+        .incorrect-answer {
             color: red;
         }
 
@@ -48,11 +48,11 @@
         .button:hover {
             background-color: #45a049;
         }
-        
+
         .return-button {
             background-color: #007BFF;
         }
-        
+
         .return-button:hover {
             background-color: #0056b3;
         }
@@ -65,7 +65,7 @@
         <!-- Buttons to choose quiz type -->
         <button id="open-questions" class="button">Open Questions</button>
         <button id="closed-questions" class="button">Multiple Choice</button>
-        
+
         <!-- Quiz form -->
         <div id="questions-container" style="display: none;">
             <form id="quiz-form"></form>
@@ -73,9 +73,6 @@
             <button id="return-to-quiz-menu" class="button return-button">Return to Quiz Menu</button>
         </div>
 
-        <!-- Result container -->
-        <div id="result-container"></div>
-        
         <!-- Return to main page button -->
         <button onclick="window.location.href='index.html'" class="button return-button">Return to Main Page</button>
     </div>
@@ -143,49 +140,40 @@
         }
 
         document.getElementById('submit-quiz').onclick = () => {
-            const resultContainer = document.getElementById('result-container');
-            resultContainer.innerHTML = ''; // Clear previous results
-            let correctAnswers = 0;
-
             vocabularyList.forEach((item, index) => {
-                let isCorrect = false;
-
                 if (quizType === 'open') {
-                    const userAnswer = document.getElementById(`answer-${index}`)?.value?.trim();
+                    // Get user answer for open questions
+                    const userAnswerElement = document.getElementById(`answer-${index}`);
+                    const userAnswer = userAnswerElement?.value?.trim();
+
                     if (userAnswer && userAnswer.toLowerCase() === item.spanish.toLowerCase()) {
-                        isCorrect = true;
+                        userAnswerElement.classList.add('correct-answer');
+                    } else {
+                        userAnswerElement.classList.add('incorrect-answer');
+                        userAnswerElement.insertAdjacentHTML('afterend', ` <span class="correct-answer">(${item.spanish})</span>`);
                     }
                 } else if (quizType === 'closed') {
-                    const options = document.getElementsByName(`closed-answer-${index}`);
-                    for (const option of options) {
-                        if (option.checked) {
-                            if (option.value.toLowerCase() === item.spanish.toLowerCase()) {
-                                isCorrect = true;
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                if (isCorrect) {
-                    correctAnswers++;
-                    resultContainer.innerHTML += `<div class="correct">Correct: "${item.english}" is "${item.spanish}".</div>`;
-                } else {
-                    resultContainer.innerHTML += `<div class="incorrect">Incorrect: "${item.english}" should be "${item.spanish}".</div>`;
-                }
-            });
-
-            resultContainer.innerHTML += `<p>You got ${correctAnswers} out of ${vocabularyList.length} correct.</p>`;
-
-            // Make inputs unchangeable after submission in closed questions
-            if (quizType === 'closed') {
-                vocabularyList.forEach((item, index) => {
+                    // Get selected option for closed questions
                     const options = document.getElementsByName(`closed-answer-${index}`);
                     options.forEach(option => {
+                        if (option.checked) {
+                            if (option.value.toLowerCase() === item.spanish.toLowerCase()) {
+                                option.nextElementSibling.classList.add('correct-answer');
+                            } else {
+                                option.nextElementSibling.classList.add('incorrect-answer');
+                            }
+                        }
+
+                        // Highlight the correct answer
+                        if (option.value.toLowerCase() === item.spanish.toLowerCase()) {
+                            option.nextElementSibling.classList.add('correct-answer');
+                        }
+
+                        // Disable options after submission
                         option.disabled = true;
                     });
-                });
-            }
+                }
+            });
         };
     </script>
 </body>

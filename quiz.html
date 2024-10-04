@@ -1,175 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocabulary Quiz</title>
-    <style>
-        body {
-            font-family: 'Georgia', serif;
-            background-color: #f7f3e9;
-            color: #333;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+<script>
+    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    const literatureFile = `${today}-text.txt`;
+    const vocabularyFile = `${today}-vocab.txt`;
 
-        h1 {
-            color: #4e342e;
-            text-align: center;
-        }
+    // Load literature and vocabulary
+    Promise.all([
+        fetch(literatureFile).then(response => response.text()).catch(() => "Sorry, today's literature is not available."),
+        fetch(vocabularyFile).then(response => response.text()).catch(() => "Sorry, today's vocabulary is not available.")
+    ]).then(([literature, vocabulary]) => {
+        document.getElementById('literature-content').innerText = literature;
 
-        .question {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #fff3e0;
-            border: 2px solid #e0a96d;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+        // Parse vocabulary into an array of objects
+        const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
+            const [english, spanish] = line.split(',');
+            return { english: english.trim(), spanish: spanish.trim() };
+        });
 
-        input[type="text"], select {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-        }
+        // Display vocabulary in the page
+        document.getElementById('vocabulary-content').innerHTML = vocabList
+            .map(v => `<strong>${v.english}</strong>: ${v.spanish}`)
+            .join('<br>');
 
-        .button {
-            background-color: #d35400;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 1.1em;
-        }
+        // Store the vocabulary in local storage in JSON format
+        localStorage.setItem('vocabularyList', JSON.stringify(vocabList));
+    }).catch(error => {
+        console.error('Error loading files:', error);
+    });
 
-        .button:hover {
-            background-color: #bf360c;
-        }
-
-        .correct {
-            background-color: #c8e6c9;
-            padding: 5px;
-        }
-
-        .incorrect {
-            background-color: #ffccbc;
-            padding: 5px;
-        }
-
-        #footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #555;
-        }
-    </style>
-</head>
-
-<body>
-    <h1>Vocabulary Quiz</h1>
-    <div id="quiz-container">
-        <h2>Select Quiz Type</h2>
-        <button class="button" id="open-questions">Open Questions</button>
-        <button class="button" id="closed-questions">Closed Questions</button>
-    </div>
-
-    <div id="questions-container" style="display:none;">
-        <form id="quiz-form"></form>
-        <button class="button" id="submit-quiz">Submit Answers</button>
-        <div id="result-container" style="margin-top: 20px;"></div>
-    </div>
-
-    <div id="footer">
-        <button class="button" onclick="window.location.href='index.html'">Return to Literature</button>
-    </div>
-
-    <script>
-        const vocabularyList = JSON.parse(localStorage.getItem('vocabularyList')) || [];
-        let quizType = '';
-
-        document.getElementById('open-questions').onclick = () => {
-            quizType = 'open';
-            displayQuestions();
-        };
-
-        document.getElementById('closed-questions').onclick = () => {
-            quizType = 'closed';
-            displayQuestions();
-        };
-
-        function displayQuestions() {
-            const form = document.getElementById('quiz-form');
-            form.innerHTML = '';  // Clear previous questions
-
-            vocabularyList.forEach((item, index) => {
-                const questionDiv = document.createElement('div');
-                questionDiv.className = 'question';
-
-                if (quizType === 'open') {
-                    questionDiv.innerHTML = `
-                        <label for="answer-${index}">What is the Spanish meaning of "${item.english}"?</label>
-                        <input type="text" id="answer-${index}" name="answer-${index}">
-                    `;
-                } else {
-                    const randomAnswers = getRandomAnswers(item);
-                    questionDiv.innerHTML = `
-                        <label>${item.spanish}:</label><br>
-                        <select id="closed-answer-${index}">
-                            ${randomAnswers.map(answer => `<option value="${answer}">${answer}</option>`).join('')}
-                        </select>
-                    `;
-                }
-                form.appendChild(questionDiv);
-            });
-            document.getElementById('questions-container').style.display = 'block';
-        }
-
-        function getRandomAnswers(correctItem) {
-            const wrongAnswers = vocabularyList
-                .filter(item => item.spanish !== correctItem.spanish)
-                .map(item => item.english)
-                .sort(() => 0.5 - Math.random()) // Shuffle
-                .slice(0, 3); // Get three wrong answers
-            return [...wrongAnswers, correctItem.english].sort(() => 0.5 - Math.random()); // Add the correct answer and shuffle
-        }
-
-        document.getElementById('submit-quiz').onclick = () => {
-            const resultContainer = document.getElementById('result-container');
-            resultContainer.innerHTML = ''; // Clear previous results
-            let correctAnswers = 0;
-
-            vocabularyList.forEach((item, index) => {
-                if (quizType === 'open') {
-                    const userAnswer = document.getElementById(`answer-${index}`)?.value?.trim();
-                    if (userAnswer) {
-                        const correctAnswer = item.english;
-                        if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
-                            correctAnswers++;
-                            resultContainer.innerHTML += `<div class="correct">Correct: ${userAnswer} is ${correctAnswer}.</div>`;
-                        } else {
-                            resultContainer.innerHTML += `<div class="incorrect">Incorrect: ${userAnswer}. Correct answer is ${correctAnswer}.</div>`;
-                        }
-                    } else {
-                        resultContainer.innerHTML += `<div class="incorrect">No answer provided for ${item.english}. Correct answer is ${item.english}.</div>`;
-                    }
-                } else {
-                    const userAnswer = document.getElementById(`closed-answer-${index}`)?.value;
-                    const correctAnswer = item.english;
-                    if (userAnswer === correctAnswer) {
-                        correctAnswers++;
-                        resultContainer.innerHTML += `<div class="correct">Correct: ${userAnswer} is ${correctAnswer}.</div>`;
-                    } else {
-                        resultContainer.innerHTML += `<div class="incorrect">Incorrect: ${userAnswer}. Correct answer is ${correctAnswer}.</div>`;
-                    }
-                }
-            });
-
-            resultContainer.innerHTML += `<h3>Your score: ${correctAnswers} out of ${vocabularyList.length}</h3>`;
-        };
-    </script>
-</body>
-</html>
+    document.getElementById('start-quiz').onclick = () => {
+        window.location.href = 'quiz.html';
+    };
+</script>

@@ -1,5 +1,5 @@
-{"english":"life","spanish":"vida"},
-{"english":"dream","spanish":"sueño"},
-{"english":"work","spanish":"obra"},
-{"english":"explores","spanish":"explora"},
-{"english":"nature","spanish":"naturaleza"}
+life,vida
+dream,sueño
+work,obra
+explore,explorar
+nature,naturaleza

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Spanish Literature and Vocabulary</title>
+    <title>Daily Literature</title>
     <style>
         body {
             font-family: 'Georgia', serif;
@@ -16,46 +15,35 @@
             padding: 20px;
         }
 
-        h1, h2 {
+        h1 {
             color: #4e342e;
             text-align: center;
         }
 
-        #literature-container {
+        .literature, .vocabulary {
+            margin: 20px 0;
+            padding: 15px;
             background-color: #fff3e0;
             border: 2px solid #e0a96d;
             border-radius: 8px;
-            padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
         }
 
-        #vocabulary-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        #vocabulary-list li {
-            background-color: #ffccbc;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        #start-quiz-button {
-            display: none;
+        .button {
             background-color: #d35400;
-            color: #fff;
+            color: white;
+            padding: 10px;
             border: none;
-            padding: 10px 20px;
-            font-size: 1.2em;
-            cursor: pointer;
             border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1.1em;
+            display: block;
             text-align: center;
-            margin-top: 20px;
+            width: 100%;
         }
 
-        #start-quiz-button:hover {
+        .button:hover {
             background-color: #bf360c;
         }
 
@@ -69,89 +57,39 @@
 </head>
 
 <body>
-    <div id="literature-container">
-        <h1>Classic Spanish Literature Fragment of the Day</h1>
-        <div id="literature-content">
-            Loading today's content...
-        </div>
-        <h2>Vocabulary List</h2>
-        <ul id="vocabulary-list">
-            <li>Loading vocabulary...</li>
-        </ul>
-        <button id="start-quiz-button">Start Vocabulary Quiz</button>
-    </div>
+    <h1>Daily Literature</h1>
+    <div class="literature" id="literature-content"></div>
+    <div class="vocabulary" id="vocabulary-content"></div>
+    <button class="button" id="start-quiz">Start Quiz</button>
     <div id="footer">
-        <p>Made by ChatGPT</p>
+        <p>Created by ChatGPT</p>
     </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get today's date in YYYY-MM-DD format
-            const today = new Date().toISOString().split('T')[0];
-            const defaultFile = 'default';
-            const literatureFilename = `${today}.txt`;
-            const vocabularyFilename = `${today}-vocab.txt`;
+        const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        const literatureFile = `${today}-text.txt`;
+        const vocabularyFile = `${today}-vocab.txt`;
 
-            console.log(`Attempting to load file: ${literatureFilename} and ${vocabularyFilename}`);  // Log for debugging
+        // Load literature and vocabulary
+        Promise.all([
+            fetch(literatureFile).then(response => response.text()).catch(() => "Sorry, today's literature is not available."),
+            fetch(vocabularyFile).then(response => response.text()).catch(() => "Sorry, today's vocabulary is not available.")
+        ]).then(([literature, vocabulary]) => {
+            document.getElementById('literature-content').innerText = literature;
+            document.getElementById('vocabulary-content').innerText = vocabulary;
 
-            // Function to load the content from a file
-            function loadContent(literatureFile, vocabularyFile) {
-                Promise.all([
-                    fetch(literatureFile).then(response => {
-                        if (!response.ok) throw new Error('Literature file not found');
-                        return response.text();
-                    }),
-                    fetch(vocabularyFile).then(response => {
-                        if (!response.ok) throw new Error('Vocabulary file not found');
-                        return response.text();
-                    })
-                ])
-                .then(([literatureText, vocabularyText]) => {
-                    console.log(`Loaded content from ${literatureFile} and ${vocabularyFile}`); // Log loaded content
-
-                    // Display the literature fragment
-                    document.getElementById('literature-content').textContent = literatureText;
-
-                    // Parse and display the vocabulary list
-                    const vocabularyList = vocabularyText.split('\n').map(line => {
-                        const [spanish, english] = line.split(':');
-                        return { spanish: spanish.trim(), english: english.trim() };
-                    });
-
-                    const vocabContainer = document.getElementById('vocabulary-list');
-                    vocabContainer.innerHTML = ''; // Clear loading text
-
-                    vocabularyList.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = `${item.spanish} - ${item.english}`;
-                        vocabContainer.appendChild(li);
-                    });
-
-                    // Enable the quiz button if vocabulary is available
-                    const quizButton = document.getElementById('start-quiz-button');
-                    quizButton.style.display = 'block';
-                    quizButton.onclick = () => {
-                        // Store the vocabulary list in local storage to be used in the quiz
-                        localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
-                        window.location.href = 'quiz.html';
-                    };
-                })
-                .catch(error => {
-                    console.error('Error loading files:', error);
-                    // Attempt to load fallback files
-                    if (literatureFile !== `${defaultFile}.txt`) {
-                        console.log(`Attempting to load fallback literature file: ${defaultFile}.txt`); // Log for debugging
-                        loadContent(`${defaultFile}.txt`, `${defaultFile}-vocab.txt`);
-                    } else {
-                        document.getElementById('literature-content').textContent = "Sorry, today's content is not available.";
-                        document.getElementById('vocabulary-list').innerHTML = '<li>No vocabulary available.</li>';
-                    }
-                });
-            }
-
-            // Load today's content, fallback to default if necessary
-            loadContent(literatureFilename, vocabularyFilename);
+            // Store vocabulary in local storage for the quiz
+            localStorage.setItem('vocabularyList', JSON.stringify(vocabulary.split('\n').map(line => {
+                const [english, spanish] = line.split(',');
+                return { english: english.trim(), spanish: spanish.trim() };
+            })));
+        }).catch(error => {
+            console.error('Error loading files:', error);
         });
+
+        document.getElementById('start-quiz').onclick = () => {
+            window.location.href = 'quiz.html';
+        };
     </script>
 </body>
-
 </html>

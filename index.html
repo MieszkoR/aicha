@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spanish Literature and Vocabulary</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: 'Georgia', serif;
@@ -84,7 +85,7 @@
             const defaultFile = 'default.txt';
             const filename = `${today}.txt`;
 
-            // Function to load content from a file
+            // Function to load the content from a file
             function loadContent(file) {
                 fetch(file)
                     .then(response => {
@@ -127,21 +128,14 @@
                     .catch(error => {
                         console.error('Error loading file:', error);
                         alert('Could not load the content for today. Loading default content.');
-                        // If default file loading fails, show an appropriate error
+                        loadContent(defaultFile);
                     });
             }
 
-            // Attempt to load today's file, fallback to default if necessary
-            fetch(filename)
-                .then(response => {
-                    if (!response.ok) throw new Error('File not found');
-                    return filename;
-                })
-                .catch(() => defaultFile)
-                .then(loadContent);
+            // Load today's content, fallback to default if necessary
+            loadContent(filename);
         });
     </script>
 </body>
 
 </html>
-

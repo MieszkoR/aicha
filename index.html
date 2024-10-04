@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,13 +69,14 @@
         }
     </style>
 </head>
+
 <body>
     <div id="literature-container">
         <h1>Classic Spanish Literature Fragment of the Day</h1>
         <div id="literature-content"></div>
         <h2>Vocabulary List</h2>
         <ul id="vocabulary-list"></ul>
-        <button id="start-quiz-button">Start Vocabulary Quiz</button>
+        <button id="start-quiz-button" style="display: none;">Start Vocabulary Quiz</button>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -82,36 +84,59 @@
             const defaultFile = 'default.txt';
             const filename = `${today}.txt`;
 
+            // Function to load the content
+            function loadContent(file) {
+                fetch(file)
+                    .then(response => {
+                        if (!response.ok) throw new Error('File not found');
+                        return response.text();
+                    })
+                    .then(text => {
+                        // Split the fragment and vocabulary by the defined delimiter
+                        const [fragment, vocabularyText] = text.split('\n\nVocabulary:\n');
+
+                        // Display the literature fragment
+                        document.getElementById('literature-content').innerText = fragment;
+
+                        // Parse and display the vocabulary list
+                        const vocabularyList = vocabularyText.split('\n').map(line => {
+                            const [spanish, english] = line.split(':');
+                            return { spanish: spanish.trim(), english: english.trim() };
+                        });
+
+                        const vocabContainer = document.getElementById('vocabulary-list');
+                        vocabContainer.innerHTML = '';
+                        vocabularyList.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = `${item.spanish} - ${item.english}`;
+                            vocabContainer.appendChild(li);
+                        });
+
+                        // Enable the quiz button if content is loaded successfully
+                        const quizButton = document.getElementById('start-quiz-button');
+                        quizButton.style.display = 'block';
+                        quizButton.onclick = () => {
+                            // Store the vocabulary list in local storage to be used in the quiz
+                            localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
+                            window.location.href = 'quiz.html';
+                        };
+                    })
+                    .catch(error => {
+                        console.error('Error loading file:', error);
+                        alert('Could not load the content for today. Please try again later.');
+                    });
+            }
+
+            // Try loading today's file, fallback to default if not found
             fetch(filename)
                 .then(response => {
                     if (!response.ok) throw new Error('File not found');
-                    return response.text();
+                    return filename;
                 })
-                .catch(() => fetch(defaultFile).then(response => response.text()))
-                .then(text => {
-                    const [fragment, vocabularyText] = text.split('\n\nVocabulary:\n');
-                    document.getElementById('literature-content').innerText = fragment;
-
-                    const vocabularyList = vocabularyText.split('\n').map(line => {
-                        const [spanish, english] = line.split(':');
-                        return { spanish: spanish.trim(), english: english.trim() };
-                    });
-
-                    const vocabContainer = document.getElementById('vocabulary-list');
-                    vocabContainer.innerHTML = '';
-                    vocabularyList.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = `${item.spanish} - ${item.english}`;
-                        vocabContainer.appendChild(li);
-                    });
-
-                    document.getElementById('start-quiz-button').onclick = () => {
-                        // Store the vocabulary list in local storage to be used in the quiz
-                        localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
-                        window.location.href = 'quiz.html';
-                    };
-                });
+                .catch(() => defaultFile)
+                .then(loadContent);
         });
     </script>
 </body>
+
 </html>

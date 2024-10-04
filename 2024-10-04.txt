@@ -1,9 +1,9 @@
-En la aldea vivía un joven pastor llamado Juan. Pasaba sus días cuidando las ovejas y disfrutando del sol que bañaba los verdes prados. Era conocido por su buen humor y por sus historias sobre aventuras fantásticas que contaba a los niños del pueblo al anochecer.
+En un lugar de la Mancha, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un hidalgo de los de lanza en astillero, adarga antigua, rocín flaco y galgo corredor. Una olla de algo más vaca que carnero, salpicón las más noches, duelos y quebrantos los sábados, lentejas los viernes, algún palomino de añadidura los domingos, consumían las tres partes de su hacienda.
 
 Vocabulary:
-aldea: village
-pastor: shepherd
-ovejas: sheep
-prados: meadows
-buen humor: good mood
-anochecer: dusk
+lugar: place
+hidalgo: nobleman
+lanza: lance
+olla: stew
+galgo: greyhound
+hacienda: estate

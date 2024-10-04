@@ -66,35 +66,38 @@
     </div>
 
     <script>
-        const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-        const literatureFile = `${today}-text.txt`;
-        const vocabularyFile = `${today}-vocab.txt`;
+    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    const literatureFile = `${today}-text.txt`;
+    const vocabularyFile = `${today}-vocab.txt`;
 
-        // Load literature and vocabulary
-        Promise.all([
-            fetch(literatureFile).then(response => response.text()).catch(() => "Sorry, today's literature is not available."),
-            fetch(vocabularyFile).then(response => response.text()).catch(() => "Sorry, today's vocabulary is not available.")
-        ]).then(([literature, vocabulary]) => {
-            document.getElementById('literature-content').innerText = literature;
+    // Load literature and vocabulary
+    Promise.all([
+        fetch(literatureFile).then(response => response.text()).catch(() => "Sorry, today's literature is not available."),
+        fetch(vocabularyFile).then(response => response.text()).catch(() => "Sorry, today's vocabulary is not available.")
+    ]).then(([literature, vocabulary]) => {
+        document.getElementById('literature-content').innerText = literature;
 
-            // Parse vocabulary into an array of objects
-            const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
-                const [english, spanish] = line.split(',');
-                return { english: english.trim(), spanish: spanish.trim() };
-            });
-
-            // Display vocabulary
-            document.getElementById('vocabulary-content').innerHTML = vocabList.map(v => `<strong>${v.english}</strong>: ${v.spanish}`).join('<br>');
-
-            // Store vocabulary in local storage for the quiz
-            localStorage.setItem('vocabularyList', JSON.stringify(vocabList));
-        }).catch(error => {
-            console.error('Error loading files:', error);
+        // Parse vocabulary into an array of objects
+        const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
+            const [english, spanish] = line.split(',');
+            return { english: english.trim(), spanish: spanish.trim() };
         });
 
-        document.getElementById('start-quiz').onclick = () => {
-            window.location.href = 'quiz.html';
-        };
-    </script>
+        // Display vocabulary in the page
+        document.getElementById('vocabulary-content').innerHTML = vocabList
+            .map(v => `<strong>${v.english}</strong>: ${v.spanish}`)
+            .join('<br>');
+
+        // Store the vocabulary in local storage in JSON format
+        localStorage.setItem('vocabularyList', JSON.stringify(vocabList));
+    }).catch(error => {
+        console.error('Error loading files:', error);
+    });
+
+    document.getElementById('start-quiz').onclick = () => {
+        window.location.href = 'quiz.html';
+    };
+</script>
+
 </body>
 </html>

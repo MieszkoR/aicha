@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spanish Literature and Vocabulary</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: 'Georgia', serif;
@@ -53,6 +52,7 @@
             cursor: pointer;
             border-radius: 5px;
             text-align: center;
+            margin-top: 20px;
         }
 
         #start-quiz-button:hover {
@@ -93,8 +93,8 @@
                             throw new Error("Improper file format");
                         }
 
-                        const fragment = parts[0];
-                        const vocabularyText = parts[1];
+                        const fragment = parts[0].trim();
+                        const vocabularyText = parts[1].trim();
 
                         // Display the fragment
                         document.getElementById('literature-content').textContent = fragment;

@@ -1,6 +1,5 @@
-fiesta - celebration
-pueblo - village
-fuente - fountain
-sombras - shade
-guirnaldas - garlands
-esparcía - spread
+{"english":"life","spanish":"vida"},
+{"english":"dream","spanish":"sueño"},
+{"english":"work","spanish":"obra"},
+{"english":"explores","spanish":"explora"},
+{"english":"nature","spanish":"naturaleza"}

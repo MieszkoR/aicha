@@ -22,22 +22,13 @@
             text-align: center;
         }
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 1em;
-        }
-
-        h2 {
-            margin-top: 2em;
-            font-size: 2em;
-        }
-
         #literature-container {
             background-color: #fff3e0;
             border: 2px solid #e0a96d;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
         #vocabulary-list {
@@ -53,7 +44,7 @@
         }
 
         #start-quiz-button {
-            display: block;
+            display: none;
             background-color: #d35400;
             color: #fff;
             border: none;
@@ -61,7 +52,6 @@
             font-size: 1.2em;
             cursor: pointer;
             border-radius: 5px;
-            margin: 20px auto;
             text-align: center;
         }
 
@@ -74,10 +64,14 @@
 <body>
     <div id="literature-container">
         <h1>Classic Spanish Literature Fragment of the Day</h1>
-        <div id="literature-content"></div>
+        <div id="literature-content">
+            Loading today's content...
+        </div>
         <h2>Vocabulary List</h2>
-        <ul id="vocabulary-list"></ul>
-        <button id="start-quiz-button" style="display: none;">Start Vocabulary Quiz</button>
+        <ul id="vocabulary-list">
+            <li>Loading vocabulary...</li>
+        </ul>
+        <button id="start-quiz-button">Start Vocabulary Quiz</button>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -94,41 +88,49 @@
                     })
                     .then(text => {
                         // Separate the fragment and the vocabulary using a unique delimiter
-                        const [fragment, vocabularyText] = text.split('\n\nVocabulary:\n');
-                        
+                        const parts = text.split('\n\nVocabulary:\n');
+                        if (parts.length < 2) {
+                            throw new Error("Improper file format");
+                        }
+
+                        const fragment = parts[0];
+                        const vocabularyText = parts[1];
+
                         // Display the fragment
-                        const literatureContent = document.getElementById('literature-content');
-                        literatureContent.textContent = fragment;
+                        document.getElementById('literature-content').textContent = fragment;
 
                         // Parse and display the vocabulary list
-                        if (vocabularyText) {
-                            const vocabularyList = vocabularyText.split('\n').map(line => {
-                                const [spanish, english] = line.split(':');
-                                return { spanish: spanish.trim(), english: english.trim() };
-                            });
+                        const vocabularyList = vocabularyText.split('\n').map(line => {
+                            const [spanish, english] = line.split(':');
+                            return { spanish: spanish.trim(), english: english.trim() };
+                        });
 
-                            const vocabContainer = document.getElementById('vocabulary-list');
-                            vocabContainer.innerHTML = '';
-                            vocabularyList.forEach(item => {
-                                const li = document.createElement('li');
-                                li.textContent = `${item.spanish} - ${item.english}`;
-                                vocabContainer.appendChild(li);
-                            });
+                        const vocabContainer = document.getElementById('vocabulary-list');
+                        vocabContainer.innerHTML = ''; // Clear loading text
 
-                            // Enable the quiz button if vocabulary is available
-                            const quizButton = document.getElementById('start-quiz-button');
-                            quizButton.style.display = 'block';
-                            quizButton.onclick = () => {
-                                // Store the vocabulary list in local storage to be used in the quiz
-                                localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
-                                window.location.href = 'quiz.html';
-                            };
-                        }
+                        vocabularyList.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = `${item.spanish} - ${item.english}`;
+                            vocabContainer.appendChild(li);
+                        });
+
+                        // Enable the quiz button if vocabulary is available
+                        const quizButton = document.getElementById('start-quiz-button');
+                        quizButton.style.display = 'block';
+                        quizButton.onclick = () => {
+                            // Store the vocabulary list in local storage to be used in the quiz
+                            localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
+                            window.location.href = 'quiz.html';
+                        };
                     })
                     .catch(error => {
                         console.error('Error loading file:', error);
-                        alert('Could not load the content for today. Loading default content.');
-                        loadContent(defaultFile);
+                        if (file !== defaultFile) {
+                            loadContent(defaultFile);
+                        } else {
+                            document.getElementById('literature-content').textContent = "Sorry, today's content is not available.";
+                            document.getElementById('vocabulary-list').innerHTML = '<li>No vocabulary available.</li>';
+                        }
                     });
             }
 

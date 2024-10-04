@@ -1,33 +1,192 @@
-<script>
-    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-    const literatureFile = `${today}-text.txt`;
-    const vocabularyFile = `${today}-vocab.txt`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Quiz</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to shared styles to maintain consistency -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
 
-    // Load literature and vocabulary
-    Promise.all([
-        fetch(literatureFile).then(response => response.text()).catch(() => "Sorry, today's literature is not available."),
-        fetch(vocabularyFile).then(response => response.text()).catch(() => "Sorry, today's vocabulary is not available.")
-    ]).then(([literature, vocabulary]) => {
-        document.getElementById('literature-content').innerText = literature;
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-        // Parse vocabulary into an array of objects
-        const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
-            const [english, spanish] = line.split(',');
-            return { english: english.trim(), spanish: spanish.trim() };
-        });
+        .question {
+            margin-bottom: 20px;
+        }
 
-        // Display vocabulary in the page
-        document.getElementById('vocabulary-content').innerHTML = vocabList
-            .map(v => `<strong>${v.english}</strong>: ${v.spanish}`)
-            .join('<br>');
+        .correct {
+            color: green;
+        }
 
-        // Store the vocabulary in local storage in JSON format
-        localStorage.setItem('vocabularyList', JSON.stringify(vocabList));
-    }).catch(error => {
-        console.error('Error loading files:', error);
-    });
+        .incorrect {
+            color: red;
+        }
 
-    document.getElementById('start-quiz').onclick = () => {
-        window.location.href = 'quiz.html';
-    };
-</script>
+        .button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+        
+        .return-button {
+            background-color: #007BFF;
+        }
+        
+        .return-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Vocabulary Quiz</h1>
+
+        <!-- Buttons to choose quiz type -->
+        <button id="open-questions" class="button">Open Questions</button>
+        <button id="closed-questions" class="button">Multiple Choice</button>
+        
+        <!-- Quiz form -->
+        <div id="questions-container" style="display: none;">
+            <form id="quiz-form"></form>
+            <button id="submit-quiz" class="button">Submit Answers</button>
+            <button id="return-to-quiz-menu" class="button return-button">Return to Quiz Menu</button>
+        </div>
+
+        <!-- Result container -->
+        <div id="result-container"></div>
+        
+        <!-- Return to main page button -->
+        <button onclick="window.location.href='index.html'" class="button return-button">Return to Main Page</button>
+    </div>
+
+    <script>
+        // Load vocabulary from local storage
+        const vocabularyList = JSON.parse(localStorage.getItem('vocabularyList')) || [];
+        let quizType = '';
+
+        document.getElementById('open-questions').onclick = () => {
+            quizType = 'open';
+            displayQuestions();
+        };
+
+        document.getElementById('closed-questions').onclick = () => {
+            quizType = 'closed';
+            displayQuestions();
+        };
+
+        document.getElementById('return-to-quiz-menu').onclick = () => {
+            document.getElementById('questions-container').style.display = 'none';
+            document.getElementById('result-container').innerHTML = '';
+        };
+
+        function displayQuestions() {
+            const form = document.getElementById('quiz-form');
+            form.innerHTML = '';  // Clear previous questions
+
+            vocabularyList.forEach((item, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+
+                if (quizType === 'open') {
+                    questionDiv.innerHTML = `
+                        <label for="answer-${index}">What is the Spanish meaning of "${item.english}"?</label>
+                        <input type="text" id="answer-${index}" name="answer-${index}">
+                    `;
+                } else {
+                    // Closed questions: create multiple choice
+                    const randomAnswers = getRandomAnswers(item);
+                    questionDiv.innerHTML = `
+                        <label>${item.english}:</label><br>
+                        ${randomAnswers.map((answer, i) => `
+                            <input type="radio" id="option-${index}-${i}" name="closed-answer-${index}" value="${answer}">
+                            <label for="option-${index}-${i}">${answer}</label><br>
+                        `).join('')}
+                    `;
+                }
+                form.appendChild(questionDiv);
+            });
+
+            document.getElementById('questions-container').style.display = 'block';
+        }
+
+        function getRandomAnswers(correctItem) {
+            // Get three wrong answers randomly
+            const wrongAnswers = vocabularyList
+                .filter(item => item.spanish !== correctItem.spanish)
+                .map(item => item.spanish)
+                .sort(() => 0.5 - Math.random()) // Shuffle the list
+                .slice(0, 3); // Take the first three wrong answers
+
+            // Add the correct answer and shuffle
+            return [...wrongAnswers, correctItem.spanish].sort(() => 0.5 - Math.random());
+        }
+
+        document.getElementById('submit-quiz').onclick = () => {
+            const resultContainer = document.getElementById('result-container');
+            resultContainer.innerHTML = ''; // Clear previous results
+            let correctAnswers = 0;
+
+            vocabularyList.forEach((item, index) => {
+                let isCorrect = false;
+
+                if (quizType === 'open') {
+                    const userAnswer = document.getElementById(`answer-${index}`)?.value?.trim();
+                    if (userAnswer && userAnswer.toLowerCase() === item.spanish.toLowerCase()) {
+                        isCorrect = true;
+                    }
+                } else if (quizType === 'closed') {
+                    const options = document.getElementsByName(`closed-answer-${index}`);
+                    for (const option of options) {
+                        if (option.checked) {
+                            if (option.value.toLowerCase() === item.spanish.toLowerCase()) {
+                                isCorrect = true;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                if (isCorrect) {
+                    correctAnswers++;
+                    resultContainer.innerHTML += `<div class="correct">Correct: "${item.english}" is "${item.spanish}".</div>`;
+                } else {
+                    resultContainer.innerHTML += `<div class="incorrect">Incorrect: "${item.english}" should be "${item.spanish}".</div>`;
+                }
+            });
+
+            resultContainer.innerHTML += `<p>You got ${correctAnswers} out of ${vocabularyList.length} correct.</p>`;
+
+            // Make inputs unchangeable after submission in closed questions
+            if (quizType === 'closed') {
+                vocabularyList.forEach((item, index) => {
+                    const options = document.getElementsByName(`closed-answer-${index}`);
+                    options.forEach(option => {
+                        option.disabled = true;
+                    });
+                });
+            }
+        };
+    </script>
+</body>
+</html>

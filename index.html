@@ -84,7 +84,7 @@
             const defaultFile = 'default.txt';
             const filename = `${today}.txt`;
 
-            // Function to load the content
+            // Function to load content from a file
             function loadContent(file) {
                 fetch(file)
                     .then(response => {
@@ -92,42 +92,46 @@
                         return response.text();
                     })
                     .then(text => {
-                        // Split the fragment and vocabulary by the defined delimiter
+                        // Separate the fragment and the vocabulary using a unique delimiter
                         const [fragment, vocabularyText] = text.split('\n\nVocabulary:\n');
-
-                        // Display the literature fragment
-                        document.getElementById('literature-content').innerText = fragment;
+                        
+                        // Display the fragment
+                        const literatureContent = document.getElementById('literature-content');
+                        literatureContent.textContent = fragment;
 
                         // Parse and display the vocabulary list
-                        const vocabularyList = vocabularyText.split('\n').map(line => {
-                            const [spanish, english] = line.split(':');
-                            return { spanish: spanish.trim(), english: english.trim() };
-                        });
+                        if (vocabularyText) {
+                            const vocabularyList = vocabularyText.split('\n').map(line => {
+                                const [spanish, english] = line.split(':');
+                                return { spanish: spanish.trim(), english: english.trim() };
+                            });
 
-                        const vocabContainer = document.getElementById('vocabulary-list');
-                        vocabContainer.innerHTML = '';
-                        vocabularyList.forEach(item => {
-                            const li = document.createElement('li');
-                            li.textContent = `${item.spanish} - ${item.english}`;
-                            vocabContainer.appendChild(li);
-                        });
+                            const vocabContainer = document.getElementById('vocabulary-list');
+                            vocabContainer.innerHTML = '';
+                            vocabularyList.forEach(item => {
+                                const li = document.createElement('li');
+                                li.textContent = `${item.spanish} - ${item.english}`;
+                                vocabContainer.appendChild(li);
+                            });
 
-                        // Enable the quiz button if content is loaded successfully
-                        const quizButton = document.getElementById('start-quiz-button');
-                        quizButton.style.display = 'block';
-                        quizButton.onclick = () => {
-                            // Store the vocabulary list in local storage to be used in the quiz
-                            localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
-                            window.location.href = 'quiz.html';
-                        };
+                            // Enable the quiz button if vocabulary is available
+                            const quizButton = document.getElementById('start-quiz-button');
+                            quizButton.style.display = 'block';
+                            quizButton.onclick = () => {
+                                // Store the vocabulary list in local storage to be used in the quiz
+                                localStorage.setItem('vocabularyList', JSON.stringify(vocabularyList));
+                                window.location.href = 'quiz.html';
+                            };
+                        }
                     })
                     .catch(error => {
                         console.error('Error loading file:', error);
-                        alert('Could not load the content for today. Please try again later.');
+                        alert('Could not load the content for today. Loading default content.');
+                        // If default file loading fails, show an appropriate error
                     });
             }
 
-            // Try loading today's file, fallback to default if not found
+            // Attempt to load today's file, fallback to default if necessary
             fetch(filename)
                 .then(response => {
                     if (!response.ok) throw new Error('File not found');
@@ -140,3 +144,4 @@
 </body>
 
 </html>
+

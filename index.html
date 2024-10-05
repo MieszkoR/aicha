@@ -3,101 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Literature</title>
+    <title>Daily Spanish Literature and Vocabulary</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            font-family: 'Georgia', serif;
-            background-color: #f7f3e9;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             color: #333;
-            line-height: 1.6;
+        }
+        .container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
-        }
-
-        h1 {
-            color: #4e342e;
-            text-align: center;
-        }
-
-        .literature, .vocabulary {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #fff3e0;
-            border: 2px solid #e0a96d;
+            background-color: #ffffff;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         .button {
-            background-color: #d35400;
-            color: white;
-            padding: 10px;
+            padding: 10px 15px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: #ffffff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
-            font-size: 1.1em;
-            display: block;
-            text-align: center;
-            width: 100%;
         }
-
         .button:hover {
-            background-color: #bf360c;
+            background-color: #45a049;
         }
-
-        #footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #555;
+        h2 {
+            color: #4CAF50;
+        }
+        .vocabulary-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .vocabulary-list li {
+            margin: 5px 0;
+        }
+        .attribution {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #888;
         }
     </style>
 </head>
-
 <body>
-    <h1>Daily Literature</h1>
-    <div class="literature" id="literature-content"></div>
-    <div class="vocabulary" id="vocabulary-content"></div>
-    <button class="button" id="start-quiz">Start Quiz</button>
-    <div id="footer">
-        <p>Created by ChatGPT</p>
+    <div class="container">
+        <h2>Daily Spanish Literature Fragment</h2>
+        <div id="literature">Loading today's literature...</div>
+
+        <h2>Vocabulary List</h2>
+        <div id="vocabulary" class="vocabulary-list">Loading today's vocabulary...</div>
+
+        <button id="start-quiz-button" class="button">Start Quiz</button>
+
+        <div class="attribution">Made by ChatGPT</div>
     </div>
 
     <script>
-    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-    const literatureFile = `${today}-text.txt`;
-    const vocabularyFile = `${today}-vocab.txt`;
+        // Determine today's date in a format like '2024-10-04'
+        const today = new Date();
+        const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-    // Load literature and vocabulary
-    Promise.all([
-        fetch(literatureFile).then(response => response.text()).catch(() => "Sorry, today's literature is not available."),
-        fetch(vocabularyFile).then(response => response.text()).catch(() => "Sorry, today's vocabulary is not available.")
-    ]).then(([literature, vocabulary]) => {
-        document.getElementById('literature-content').innerText = literature;
+        // Paths to literature and vocabulary files
+        const litFilePath = `literature/${formattedDate}-text.txt`;
+        const vocabFilePath = `vocabulary/${formattedDate}-vocab.txt`;
 
-        // Parse vocabulary into an array of objects
-        const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
-            const [english, spanish] = line.split(',');
-            return { english: english.trim(), spanish: spanish.trim() };
+        // Load the literature text
+        fetch(litFilePath)
+            .then(response => {
+                if (!response.ok) throw new Error('Literature file not found');
+                return response.text();
+            })
+            .then(data => {
+                document.getElementById('literature').innerText = data.trim();
+            })
+            .catch(error => {
+                console.error("Error loading literature:", error);
+                document.getElementById('literature').innerText = "Sorry, today's literature content is not available.";
+            });
+
+        // Load the vocabulary list
+        fetch(vocabFilePath)
+            .then(response => {
+                if (!response.ok) throw new Error('Vocabulary file not found');
+                return response.text();
+            })
+            .then(data => {
+                const vocabArray = data.trim().split("\n").map(line => {
+                    const [english, spanish] = line.split(":").map(item => item.trim());
+                    return { english, spanish };
+                });
+
+                const vocabContainer = document.getElementById('vocabulary');
+                vocabContainer.innerHTML = '<ul>';
+                vocabArray.forEach(item => {
+                    vocabContainer.innerHTML += `<li><strong>${item.english}</strong>: ${item.spanish}</li>`;
+                });
+                vocabContainer.innerHTML += '</ul>';
+
+                // Store vocabulary in local storage for quiz use
+                localStorage.setItem('vocabularyList', JSON.stringify(vocabArray));
+            })
+            .catch(error => {
+                console.error("Error loading vocabulary:", error);
+                document.getElementById('vocabulary').innerText = "Sorry, today's vocabulary is not available.";
+            });
+
+        // Navigate to quiz page when clicking on "Start Quiz"
+        document.getElementById('start-quiz-button').addEventListener('click', () => {
+            window.location.href = 'quiz.html';
         });
-
-        // Display vocabulary in the page
-        document.getElementById('vocabulary-content').innerHTML = vocabList
-            .map(v => `<strong>${v.english}</strong>: ${v.spanish}`)
-            .join('<br>');
-
-        // Store the vocabulary in local storage in JSON format
-        localStorage.setItem('vocabularyList', JSON.stringify(vocabList));
-    }).catch(error => {
-        console.error('Error loading files:', error);
-    });
-
-    document.getElementById('start-quiz').onclick = () => {
-        window.location.href = 'quiz.html';
-    };
-</script>
-
+    </script>
 </body>
 </html>

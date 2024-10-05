@@ -96,7 +96,7 @@
                     const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
                         const [english, spanish] = line.split(':'); // No whitespace expected here
                         if (!english || !spanish) throw new Error("Vocabulary format is incorrect");
-                        return { english: english.trim(), spanish: spanish.trim() }; // trim to clean up any unexpected spaces
+                        return {spanish: spanish.trim(), english: english.trim() }; // trim to clean up any unexpected spaces
                     });
 
                     // Display vocabulary

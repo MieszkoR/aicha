@@ -1,5 +1,5 @@
-windmill: molino
-knight: caballero
-sword: espada
-horse: caballo
-adventure: aventura
+windmill:molino
+knight:caballero
+sword:espada
+horse:caballo
+adventure:aventura

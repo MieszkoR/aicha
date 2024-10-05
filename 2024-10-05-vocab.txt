@@ -1,6 +1,5 @@
-fiesta - celebration
-pueblo - village
-fuente - fountain
-sombras - shade
-guirnaldas - garlands
-esparcía - spread
+windmill: molino
+knight: caballero
+sword: espada
+horse: caballo
+adventure: aventura

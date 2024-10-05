@@ -66,52 +66,62 @@
         <p>Created by ChatGPT</p>
     </div>
 
-    <script>
+    
+        <script>
         const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-        const literatureFile = `literature/${today}-text.txt`;
-        const vocabularyFile = `vocabulary/${today}-vocab.txt`;
+        const literatureFile = `${today}-text.txt`;
+        const vocabularyFile = `${today}-vocab.txt`;
 
         // Load literature and vocabulary
-        // Load literature and vocabulary
-Promise.all([
-    fetch(literatureFile)
-        .then(response => response.ok ? response.text() : Promise.reject("Literature file not found"))
-        .catch(() => "Sorry, today's literature is not available."),
-    fetch(vocabularyFile)
-        .then(response => response.ok ? response.text() : Promise.reject("Vocabulary file not found"))
-        .catch(() => "Sorry, today's vocabulary is not available.")
-])
-.then(([literature, vocabulary]) => {
-    document.getElementById('literature-content').innerText = literature;
+        Promise.all([
+            fetch(literatureFile)
+                .then(response => {
+                    if (!response.ok) throw new Error("Literature file not found");
+                    return response.text();
+                })
+                .catch(() => "Sorry, today's literature is not available."),
+            fetch(vocabularyFile)
+                .then(response => {
+                    if (!response.ok) throw new Error("Vocabulary file not found");
+                    return response.text();
+                })
+                .catch(() => "Sorry, today's vocabulary is not available.")
+        ])
+        .then(([literature, vocabulary]) => {
+            document.getElementById('literature-content').innerText = literature;
 
-    if (vocabulary !== "Sorry, today's vocabulary is not available.") {
-        try {
-            // Parse vocabulary into an array of objects
-            const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
-                const [english, spanish] = line.split(':');
-                if (!english || !spanish) throw new Error("Vocabulary format is incorrect");
-                return { english: english.trim(), spanish: spanish.trim() };
-            });
+            if (vocabulary !== "Sorry, today's vocabulary is not available.") {
+                try {
+                    // Parse vocabulary into an array of objects
+                    const vocabList = vocabulary.split('\n').filter(Boolean).map(line => {
+                        const [english, spanish] = line.split(':'); // No whitespace expected here
+                        if (!english || !spanish) throw new Error("Vocabulary format is incorrect");
+                        return { english: english.trim(), spanish: spanish.trim() }; // trim to clean up any unexpected spaces
+                    });
 
-            // Display vocabulary
-            document.getElementById('vocabulary-content').innerHTML = vocabList
-                .map(v => `<strong>${v.english}</strong>: ${v.spanish}`)
-                .join('<br>');
+                    // Display vocabulary
+                    document.getElementById('vocabulary-content').innerHTML = vocabList
+                        .map(v => `<strong>${v.english}</strong>: ${v.spanish}`)
+                        .join('<br>');
 
-            // Store vocabulary in local storage for the quiz
-            localStorage.setItem('vocabularyList', JSON.stringify(vocabList));
-        } catch (error) {
-            console.error('Error parsing vocabulary:', error);
-            document.getElementById('vocabulary-content').innerText = "Sorry, today's vocabulary is not available due to formatting issues.";
-        }
-    } else {
-        document.getElementById('vocabulary-content').innerText = vocabulary;
-    }
-})
-.catch(error => {
-    console.error('Error loading files:', error);
-});
+                    // Store vocabulary in local storage for the quiz
+                    localStorage.setItem('vocabularyList', JSON.stringify(vocabList));
+                } catch (error) {
+                    console.error('Error parsing vocabulary:', error);
+                    document.getElementById('vocabulary-content').innerText = "Sorry, today's vocabulary is not available due to formatting issues.";
+                }
+            } else {
+                document.getElementById('vocabulary-content').innerText = vocabulary;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading files:', error);
+        });
 
+        document.getElementById('start-quiz').onclick = () => {
+            window.location.href = 'quiz.html'; // Navigate to quiz page
+        };
     </script>
+    
 </body>
 </html>
